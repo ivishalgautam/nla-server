@@ -19,6 +19,7 @@ async function createLead(req, res) {
     grade,
     gender,
     test_assigned,
+    school_name,
   } = req.body;
 
   try {
