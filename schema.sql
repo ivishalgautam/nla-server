@@ -1,13 +1,10 @@
-CREATE DATABASE IF NOT EXISTS quiz;
+CREATE DATABASE quiz IF NOT EXISTS;
 
 CREATE
-OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $ $ BEGIN NEW.updated_at = NOW();
-
+OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
 RETURN NEW;
-
 END;
-
-$ $ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TYPE test_type AS ENUM (
     'practice',
@@ -39,7 +36,7 @@ VALUES
 
 CREATE TABLE grades(
     id INT PRIMARY KEY NOT NULL,
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE tests(
@@ -57,21 +54,6 @@ CREATE TABLE tests(
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
---this function makes test is_published:true when start_time and deletes when end_time
-CREATE
-OR REPLACE FUNCTION set_published_status() RETURNS TRIGGER AS $ $ BEGIN IF NEW.start_time <= NOW() THEN NEW.is_published = true;
-
-END IF;
-
-RETURN NEW;
-
-END;
-
-$ $ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_set_published_status BEFORE
-INSERT
-    ON tests FOR EACH ROW EXECUTE FUNCTION set_published_status();
 
 -- Create a trigger to call the function before update
 CREATE TRIGGER trigger_update_updated_at BEFORE

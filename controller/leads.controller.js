@@ -39,7 +39,7 @@ async function createLead(req, res) {
 
     // create lead
     const lead = await pool.query(
-      `INSERT INTO leads (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);`,
+      `INSERT INTO leads (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`,
       [
         fullname,
         email,
@@ -53,12 +53,13 @@ async function createLead(req, res) {
         grade,
         gender,
         test_assigned,
+        school_name,
       ]
     );
 
     // create student
     const student = await pool.query(
-      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, credentials_created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) returning *;`,
+      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, credentials_created, school_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning *;`,
       [
         fullname,
         email,
@@ -73,6 +74,7 @@ async function createLead(req, res) {
         gender,
         test_assigned,
         true,
+        school_name,
       ]
     );
 
