@@ -266,6 +266,19 @@ async function getTests(req, res) {
   }
 }
 
+async function getFilteredTests(req, res) {
+  const { grade, subject } = req.query;
+  try {
+    const tests = await pool.query(
+      `SELECT * FROM tests WHERE grade = $1 AND subject = $2 AND test_type = 'olympiad';`
+    );
+    res.json(tests.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
 async function deleteTestById(req, res) {
   const testId = parseInt(req.params.testId);
 
@@ -343,4 +356,5 @@ module.exports = {
   getStudentTestsByCategory,
   getTestInstructionsById,
   getUpcomingTests,
+  getFilteredTests,
 };

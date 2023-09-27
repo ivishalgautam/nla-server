@@ -1,10 +1,13 @@
 CREATE DATABASE quiz IF NOT EXISTS;
 
 CREATE
-OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $ $ BEGIN NEW.updated_at = NOW();
+
 RETURN NEW;
+
 END;
-$$ LANGUAGE plpgsql;
+
+$ $ LANGUAGE plpgsql;
 
 CREATE TYPE test_type AS ENUM (
     'practice',
@@ -51,9 +54,9 @@ CREATE TABLE tests(
     end_time TIMESTAMP NOT NULL,
     duration VARCHAR(40) NOT NULL,
     instructions TEXT [] NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
 
 -- Create a trigger to call the function before update
 CREATE TRIGGER trigger_update_updated_at BEFORE

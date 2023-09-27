@@ -31,6 +31,7 @@ cron.schedule("0 * * * *", disableTest);
 
 // user
 router.get("/", Controller.getTests);
+router.get("/filter", Controller.getFilteredTests);
 router.get(
   "/instructions/:testId",
   verifyToken,
