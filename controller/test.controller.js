@@ -46,7 +46,6 @@ async function createTest(req, res) {
 
 async function updateTestById(req, res) {
   const testId = parseInt(req.params.testId);
-  console.log(testId, typeof testId);
   const {
     name,
     grade,
@@ -61,7 +60,6 @@ async function updateTestById(req, res) {
   const sDate = new Date(start_time).setHours(9, 0, 0, 0);
   const eDate = new Date(end_time).setHours(21, 0, 0, 0);
 
-  console.log({ sDate, eDate });
   try {
     const { rowCount } = await pool.query(
       `UPDATE tests SET name = $1, grade = $2, test_type = $3, subject = $4, start_time = $5, end_time = $6, duration = $7, instructions = $8, is_published = $9 WHERE id = $10`,
@@ -78,6 +76,7 @@ async function updateTestById(req, res) {
         testId,
       ]
     );
+    console.log({ sDate, eDate });
 
     if (rowCount === 0)
       return res.status(404).json({ message: "Test not found!" });
