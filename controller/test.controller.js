@@ -57,8 +57,20 @@ async function updateTestById(req, res) {
     instructions,
     is_published,
   } = req.body;
-  const sDate = new Date(start_time).setHours(9, 0, 0, 0);
-  const eDate = new Date(end_time).setHours(21, 0, 0, 0);
+  // const sDate = new Date(start_time).setHours(9, 0, 0, 0);
+  // const eDate = new Date(end_time).setHours(21, 0, 0, 0);
+  // Convert to Indian Standard Time (IST)
+  // Convert to Indian Standard Time (IST)
+  const startDateIST = moment(start_time)
+    .tz("Asia/Kolkata")
+    .hour(9)
+    .minute(0)
+    .second(0);
+  const endDateIST = moment(end_time)
+    .tz("Asia/Kolkata")
+    .hour(21)
+    .minute(0)
+    .second(0);
 
   try {
     const { rowCount } = await pool.query(
@@ -68,15 +80,19 @@ async function updateTestById(req, res) {
         parseInt(grade),
         test_type,
         subject,
-        new Date(sDate),
-        new Date(eDate),
+        new Date(startDateIST),
+        new Date(endDateIST),
         duration,
         instructions,
         is_published,
         testId,
       ]
     );
-    console.log({ sDate, eDate });
+
+    console.log({
+      startDateIST,
+      endDateIST,
+    });
 
     if (rowCount === 0)
       return res.status(404).json({ message: "Test not found!" });
