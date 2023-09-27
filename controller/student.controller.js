@@ -236,7 +236,7 @@ async function getStudentById(req, res) {
 
 async function getStudents(req, res) {
   try {
-    const { rows } = await pool.query(`SELECT * FROM students;`);
+    const { rows } = await pool.query(`SELECT * FROM students ORDER BY id;`);
 
     res.json(rows);
   } catch (error) {
