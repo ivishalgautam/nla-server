@@ -181,7 +181,7 @@ async function getStudentTestsByCategory(req, res) {
     if (package === "dashboard") {
       let practiceTests = allTests.rows
         .filter((item) => item.test_type === "practice")
-        .filter((item) => item.grade <= grade);
+        .filter((item) => item.grade === grade);
       tests = practiceTests;
     } else if (package === "olympiad") {
       const studentTests = student?.rows[0]?.test_assigned?.map((item) =>
@@ -200,11 +200,11 @@ async function getStudentTestsByCategory(req, res) {
               .filter((i) => !testTakenIds.includes(i))
               .includes(item.id)
           )
-          .filter((item) => item.grade <= grade);
+          .filter((item) => item.grade === grade);
       } else {
         tests = allTests.rows
           .filter((item) => studentTests.includes(item.id))
-          .filter((item) => item.grade <= grade);
+          .filter((item) => item.grade === grade);
       }
     } else if (package === "polympiad") {
       const studentTests = student.rows[0].test_assigned.map((item) =>
