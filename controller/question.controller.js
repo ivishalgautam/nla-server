@@ -2,7 +2,7 @@ const { pool } = require("../config/db");
 
 async function createQuestion(req, res) {
   const { data, testId } = req.body;
-  // console.log(req.body);
+  console.log(req.body);
 
   try {
     await pool.query("DELETE FROM questions WHERE test_id = $1", [testId]);
