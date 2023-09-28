@@ -65,6 +65,7 @@ UPDATE
 
 CREATE TABLE questions(
     id SERIAL PRIMARY KEY,
+    heading VARCHAR(40),
     question VARCHAR(40) [] DEFAULT '{}',
     answer INT NOT NULL,
     test_id INT REFERENCES tests(id) ON DELETE CASCADE NOT NULL,
@@ -132,7 +133,7 @@ CREATE TABLE leads(
     grade INT NOT NULL,
     school_name VARCHAR(100),
     is_subscribed BOOLEAN DEFAULT false,
-    test_assigned VARCHAR(20),
+    test_assigned VARCHAR(20) [],
     subject subject_type NOT NULL,
     package package_type NOT NULL,
     is_disabled BOOLEAN DEFAULT false,

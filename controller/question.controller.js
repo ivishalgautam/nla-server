@@ -12,8 +12,13 @@ async function createQuestion(req, res) {
       for (const [key, value] of Object.entries(item)) {
         if (typeof value === "object") {
           const { rows } = await pool.query(
-            `INSERT INTO questions (question, answer, test_id) VALUES ($1, $2, $3)`,
-            [Object.values(value), item["answer"], parseInt(testId)]
+            `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4)`,
+            [
+              Object.values(value),
+              item["answer"],
+              parseInt(testId),
+              item["heading"],
+            ]
           );
           questionRows.push(rows[0]);
         }
