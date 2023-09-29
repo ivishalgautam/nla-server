@@ -8,13 +8,14 @@ async function createResult(req, res) {
     total_points,
     student_attempted,
     total_questions,
+    user_answers,
     grade,
   } = req.body;
   console.log(req.body);
   try {
     const result = await pool.query(
-      `INSERT INTO student_results (student_id, test_id, student_points, total_points, student_attempted, total_questions, grade)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) returning *`,
+      `INSERT INTO student_results (student_id, test_id, student_points, total_points, student_attempted, total_questions, grade, user_answers)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
       [
         student_id,
         test_id,
@@ -23,6 +24,7 @@ async function createResult(req, res) {
         student_attempted,
         total_questions,
         grade,
+        user_answers,
       ]
     );
     // console.log(result.rows);
@@ -83,4 +85,41 @@ async function getStudentResults(req, res) {
   }
 }
 
-module.exports = { createResult, getResults, getStudentResults };
+async function getAnswerSheet(req, res) {
+  const { studentId, testId } = req.params;
+  const { t } = req.query;
+  console.log({ t });
+  try {
+    let studentAnswers;
+    if (studentId && testId && t) {
+      const answers = await pool.query(
+        "SELECT * FROM student_results WHERE student_id = $1 AND test_id = $2;",
+        [studentId, testId]
+      );
+
+      const matchingRows = answers.rows.filter((row) => {
+        const createdAt = new Date(row.created_at);
+        const tDate = new Date(t);
+        return createdAt.getTime() === tDate.getTime();
+      });
+
+      studentAnswers = matchingRows[0].user_answers;
+    }
+
+    const questions = await pool.query(
+      `SELECT * FROM questions WHERE test_id = $1`,
+      [testId]
+    );
+    res.json({ questions: questions.rows, studentAnswers });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+module.exports = {
+  createResult,
+  getResults,
+  getStudentResults,
+  getAnswerSheet,
+};

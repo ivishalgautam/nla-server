@@ -117,6 +117,7 @@ CREATE TABLE student_results(
     student_attempted INT NOT NULL,
     total_questions INT NOT NULL,
     grade VARCHAR(10) NOT NULL,
+    user_answers VARCHAR(255) [] NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
