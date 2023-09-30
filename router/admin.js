@@ -110,6 +110,11 @@ router.put(
 // student results
 router.get("/results", verifyTokenAndAuthorization, Result.getResults);
 router.get(
+  "/results/answerSheet/:studentId/:testId",
+  verifyTokenAndAuthorization,
+  Result.getAnswerSheet
+);
+router.get(
   "/results/:studentId",
   verifyTokenAndAuthorization,
   Result.getStudentResults

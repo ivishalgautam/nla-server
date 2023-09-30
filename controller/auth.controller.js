@@ -11,11 +11,11 @@ async function login(req, res) {
     );
 
     if (credentials.rowCount === 0) {
-      return res.status(404).json({ message: "User not found!" });
+      return res.status(404).json({ message: "Student not found!" });
     }
 
     if (credentials.rows[0].is_disabled) {
-      return res.status(400).json({ message: "User not found!" });
+      return res.status(400).json({ message: "Student not found!" });
     }
 
     if (credentials.rows[0].password !== password) {
@@ -23,7 +23,7 @@ async function login(req, res) {
     }
 
     const student = await pool.query(
-      `SELECT id, fullname, grade, package, email FROM students WHERE id = $1`,
+      `SELECT id, fullname, grade, package, email, phone FROM students WHERE id = $1`,
       [credentials.rows[0].student_id]
     );
 

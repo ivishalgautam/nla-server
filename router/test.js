@@ -7,7 +7,7 @@ const cron = require("node-cron");
 async function publishTest() {
   try {
     const { rows } = await pool.query(
-      "UPDATE tests SET is_published = true WHERE start_time <= NOW()"
+      "UPDATE tests SET is_published = true WHERE start_time <= NOW() AND NOW() <= end_time"
     );
     console.log("Test published successfully");
   } catch (error) {
@@ -26,8 +26,8 @@ async function disableTest() {
   }
 }
 
-cron.schedule("0 * * * *", publishTest);
-cron.schedule("0 * * * *", disableTest);
+cron.schedule("* * * * *", publishTest);
+cron.schedule("* * * * *", disableTest);
 
 // user
 router.get("/", Controller.getTests);

@@ -362,8 +362,9 @@ async function getUpcomingTests(req, res) {
 
 // admin
 async function getAdminTests(req, res) {
+  console.log("hello");
   try {
-    const { rows, rowCount } = await pool.query(`
+    const { rows } = await pool.query(`
       SELECT t.*, q.total_questions FROM tests AS t
       LEFT JOIN (
         SELECT test_id, COUNT(*) AS total_questions

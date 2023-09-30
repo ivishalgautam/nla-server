@@ -67,7 +67,7 @@ CREATE TABLE questions(
     id SERIAL PRIMARY KEY,
     heading VARCHAR(40),
     question VARCHAR(40) [] DEFAULT '{}',
-    answer INT NOT NULL,
+    answer VARCHAR(255) NOT NULL,
     test_id INT REFERENCES tests(id) ON DELETE CASCADE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
