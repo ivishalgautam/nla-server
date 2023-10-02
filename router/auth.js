@@ -3,12 +3,12 @@ const {
   adminLogin,
   validateStudent,
 } = require("../controller/auth.controller");
-const { verifyToken } = require("../middleware/verifyToken");
+const { verifyTokenAndDisabled } = require("../middleware/verifyToken");
 
 const router = require("express").Router();
 
 router.post("/login", login);
 router.post("/admin/login", adminLogin);
-router.get("/validate", verifyToken, validateStudent);
+router.get("/validate", verifyTokenAndDisabled, validateStudent);
 
 module.exports = router;

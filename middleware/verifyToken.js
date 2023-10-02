@@ -36,6 +36,16 @@ function verifyToken(req, res, next) {
   }
 }
 
+function verifyTokenAndDisabled(req, res, next) {
+  verifyToken(req, res, () => {
+    if (req.user.id === req.params.id || req.user.is_disabled === false) {
+      next();
+    } else {
+      return res.status(401).json({ message: "Unauthorised!" });
+    }
+  });
+}
+
 function verifyTokenAndAuthorization(req, res, next) {
   verifyToken(req, res, () => {
     if (req.user.id === req.params.id || req.user.role === "admin") {
@@ -61,4 +71,5 @@ module.exports = {
   verifyToken,
   verifyTokenAndAuthorization,
   verifyTokenAndAdmin,
+  verifyTokenAndDisabled,
 };

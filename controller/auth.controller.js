@@ -23,7 +23,7 @@ async function login(req, res) {
     }
 
     const student = await pool.query(
-      `SELECT id, fullname, grade, package, email, phone, city, pincode FROM students WHERE id = $1`,
+      `SELECT id, fullname, grade, package, email, phone, city, pincode, is_disabled FROM students WHERE id = $1`,
       [credentials.rows[0].student_id]
     );
 
@@ -32,6 +32,7 @@ async function login(req, res) {
       fullname: student.rows[0].fullname,
       email: student.rows[0].email,
       phone: student.rows[0].phone,
+      is_disabled: student.rows[0].is_disabled,
     });
 
     res.json({ student: student.rows[0], access_token: jwtToken });
