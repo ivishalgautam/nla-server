@@ -75,17 +75,13 @@ async function sendQueryEmail(studentId, studentName, testId, testName) {
           <thead>
             <tr>
               <th style="background-color: #f2f2f2; padding: 10px; text-align: left; border: 1px solid #ddd;">Student Name</th>
-              <th style="background-color: #f2f2f2; padding: 10px; text-align: left; border: 1px solid #ddd;">Student ID</th>
               <th style="background-color: #f2f2f2; padding: 10px; text-align: left; border: 1px solid #ddd;">Test Name</th>
-              <th style="background-color: #f2f2f2; padding: 10px; text-align: left; border: 1px solid #ddd;">Test ID</th>
             </tr>
           </thead>
           <tbody>
             <!-- Add table rows with data here -->
             <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;">${studentId}</td>
               <td style="padding: 10px; border: 1px solid #ddd;">${studentName}</td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${testId}</td>
               <td style="padding: 10px; border: 1px solid #ddd;">${testName}</td>
             </tr>
             <!-- Add more rows with data here if needed -->
