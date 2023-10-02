@@ -23,7 +23,7 @@ async function sendEmail(email, username, password) {
   let mailOptions = {
     from: process.env.MAIL_ID,
     to: email,
-    subject: "NLA Creadentials",
+    subject: "NLA Credentials",
     html: `
     <h1>NLA ACADEMY</h1>
     <p>
@@ -44,7 +44,7 @@ async function sendResetPasswordMail(email, link) {
   let mailOptions = {
     from: process.env.MAIL_ID,
     to: email,
-    subject: "NLA Creadentials",
+    subject: "NLA Reset Password",
     html: `
     <h1>NLA ACADEMY</h1>
     <p>
@@ -60,7 +60,7 @@ async function sendQueryEmail(studentId, studentName, testId, testName) {
   let mailOptions = {
     from: process.env.MAIL_ID,
     to: "vishal.gautam.5812@gmail.com",
-    subject: "NLA Creadentials",
+    subject: "Student olympiad test query",
     html: `
       <!DOCTYPE html>
       <html lang="en">
@@ -87,7 +87,7 @@ async function sendQueryEmail(studentId, studentName, testId, testName) {
             <!-- Add more rows with data here if needed -->
           </tbody>
         </table>
-        <a style="text-align:center; display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 20px; width: 100%;"  href="http://localhost:3000/auth/login/admin?callback=http://localhost:3000/admin/students/update/${studentId}">Assign test</a>
+        <a style="text-align:center; display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 20px; width: 100%;"  href="https://nla-client.vercel.app/auth/login/admin?callback=https://nla-client.vercel.app/admin/students/update/${studentId}">Assign test</a>
       </body>
       </html>
     `,
