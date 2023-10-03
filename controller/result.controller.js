@@ -76,7 +76,7 @@ async function getStudentResults(req, res) {
             tests as t on sr.test_id = t.id
         WHERE
             sr.student_id = $1
-            ORDER BY created_at ASC;`,
+            ORDER BY created_at DESC;`,
       [studentId]
     );
     res.json(rows);
