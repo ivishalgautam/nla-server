@@ -63,7 +63,8 @@ async function getStudentResults(req, res) {
       SELECT 
             sr.*, 
             s.id as student_id, 
-            s.fullname, 
+            s.fullname,
+            s.school_name,
             t.id as test_id, 
             t.name as test_name,
             t.test_type,
