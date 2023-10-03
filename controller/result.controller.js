@@ -69,7 +69,8 @@ async function getStudentResults(req, res) {
             t.id as test_id, 
             t.name as test_name,
             t.test_type,
-            t.subject
+            t.subject,
+            t.created_at as held_on
         FROM
             student_results as sr
         JOIN
