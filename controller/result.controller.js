@@ -39,7 +39,7 @@ async function getResults(req, res) {
     const { rows, rowCount } = await pool.query(`
       SELECT 
             sr.*, 
-            DISTINCT s.id as student_id, 
+            s.id as student_id, 
             s.fullname,
             s.school_name,
             s.grade as class,
@@ -53,7 +53,9 @@ async function getResults(req, res) {
         JOIN 
             students s ON sr.student_id = s.id
         JOIN 
-            tests t on sr.test_id = t.id`);
+            tests t on sr.test_id = t.id
+        GROUP BY 
+            s.id, s.fullname, s.school_name, s.grade, t.id, t.name, t.test_type, t.subject, t.created_at;`);
     res.json(rows);
   } catch (error) {
     console.log(error);
