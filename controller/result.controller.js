@@ -37,7 +37,7 @@ async function createResult(req, res) {
 async function getResults(req, res) {
   try {
     const { rows, rowCount } = await pool.query(`
-      SELECT 
+      SELECT DISTINCT ON (s.id)
             sr.*, 
             s.id as student_id, 
             s.fullname,
@@ -53,9 +53,7 @@ async function getResults(req, res) {
         JOIN 
             students s ON sr.student_id = s.id
         JOIN 
-            tests t on sr.test_id = t.id
-        GROUP BY 
-            s.id, s.fullname, s.school_name, s.grade, t.id, t.name, t.test_type, t.subject, t.created_at;`);
+            tests t on sr.test_id = t.id;`);
     res.json(rows);
   } catch (error) {
     console.log(error);
