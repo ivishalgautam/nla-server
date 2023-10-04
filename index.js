@@ -9,7 +9,7 @@ app.use(morgan("tiny"));
 app.use(express.json());
 app.use(cors());
 
-console.log(process.env);
+console.log(process.env.HOST);
 
 // admin
 app.use("/api/admin", require("./router/admin"));
