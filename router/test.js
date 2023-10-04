@@ -26,8 +26,8 @@ async function disableTest() {
   }
 }
 
-cron.schedule("* * * * *", publishTest);
-cron.schedule("* * * * *", disableTest);
+// cron.schedule("* * * * *", publishTest);
+// cron.schedule("* * * * *", disableTest);
 
 // user
 router.get("/", Controller.getTests);
