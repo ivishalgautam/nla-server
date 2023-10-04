@@ -39,10 +39,15 @@ async function getResults(req, res) {
     const { rows, rowCount } = await pool.query(`
       SELECT 
             sr.*, 
-            s.id as student_id, 
-            s.fullname, 
+            DISTINCT s.id as student_id, 
+            s.fullname,
+            s.school_name,
+            s.grade as class,
             t.id as test_id, 
-            t.name as test_name
+            t.name as test_name,
+            t.test_type,
+            t.subject,
+            t.created_at as held_on
         FROM 
             student_results sr
         JOIN 
