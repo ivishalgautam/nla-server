@@ -56,6 +56,7 @@ async function getResults(req, res) {
             tests t on sr.test_id = t.id`);
     res.json(rows);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 }
