@@ -44,6 +44,7 @@ async function login(req, res) {
 
 async function adminLogin(req, res) {
   const { email, password } = req.body;
+  console.log(req.body);
 
   try {
     const admin = await pool.query(`SELECT * FROM admin WHERE email = $1`, [
