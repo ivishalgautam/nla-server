@@ -9,7 +9,7 @@ async function publishTest() {
     const { rows } = await pool.query(
       "UPDATE tests SET is_published = true WHERE start_time <= NOW() AND NOW() <= end_time"
     );
-    console.log("Test published successfully");
+    // console.log("Test published successfully");
   } catch (error) {
     console.error("Error deleting expired tests:", error);
   }
@@ -20,7 +20,7 @@ async function disableTest() {
     const { rows } = await pool.query(
       "UPDATE tests SET is_published = false WHERE end_time <= NOW()"
     );
-    console.log("Test disabled successfully");
+    // console.log("Test disabled successfully");
   } catch (error) {
     console.error("Error deleting expired tests:", error);
   }
