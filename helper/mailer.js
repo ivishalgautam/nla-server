@@ -25,16 +25,22 @@ async function sendEmail(email, username, password) {
     to: email,
     subject: "NLA Credentials",
     html: `
-    <h1>NLA ACADEMY</h1>
-    <p>
-    Your username and password are below:
-        <div>
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #f2f2f2; text-align: center;">
+        <h1 style="color: #3498db;">NLA ACADEMY</h1>
+        <p style="margin-top: 20px;">
+          Your username and password are below:
+          <div>
             Your username is: ${username}
-        </div>
-        <div>
+          </div>
+          <div>
             Your password is: ${password}
-        </div>
-    </p>`,
+          </div>
+        </p>
+        <a href="http://nlaacademy.in/auth/login/student" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 20px;">Login to NLA Academy</a>
+      </body>
+    </html>
+    `,
   };
 
   send(mailOptions);
@@ -87,7 +93,7 @@ async function sendQueryEmail(studentId, studentName, testId, testName) {
             <!-- Add more rows with data here if needed -->
           </tbody>
         </table>
-        <a style="text-align:center; display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 20px; width: 100%;"  href="https://nla-client.vercel.app/auth/login/admin?callback=https://nla-client.vercel.app/admin/students/update/${studentId}">Assign test</a>
+        <a style="text-align:center; display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 20px; width: 100%;"  href="http:/nlaacademy.in/auth/login/admin?callback=http:/nlaacademy.in/admin/students/update/${studentId}">Assign test</a>
       </body>
       </html>
     `,
