@@ -83,14 +83,14 @@ async function getQuestionsByTestId(req, res) {
 
   try {
     const testDisabled = await pool.query(
-      `SELECT * FROM tests WHERE id = $1 ORDER BY id ASC`,
+      `SELECT * FROM tests WHERE id = $1;`,
       [testId]
     );
     if (!testDisabled.rows[0].is_published) {
       return res.json([]);
     }
     const { rows } = await pool.query(
-      `SELECT * FROM questions WHERE test_id = $1`,
+      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id ASC;`,
       [testId]
     );
 
