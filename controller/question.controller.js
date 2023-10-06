@@ -82,9 +82,10 @@ async function getQuestionsByTestId(req, res) {
   const { studentId } = req.body;
 
   try {
-    const testDisabled = await pool.query(`SELECT * FROM tests WHERE id = $1`, [
-      testId,
-    ]);
+    const testDisabled = await pool.query(
+      `SELECT * FROM tests WHERE id = $1 ORDER BY id ASC`,
+      [testId]
+    );
     if (!testDisabled.rows[0].is_published) {
       return res.json([]);
     }
