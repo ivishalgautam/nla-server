@@ -18,7 +18,7 @@ async function sendResetPasswordAndLink(req, res) {
 
     sendResetPasswordMail(
       userExist.rows[0].email,
-      `http://localhost:3000/reset-password/password/${userExist.rows[0].id}`
+      `https://nlaolympiad.in/reset-password/password/${userExist.rows[0].id}`
     );
     res.json({ message: "We have sent a reset password link to your email" });
   } catch (error) {

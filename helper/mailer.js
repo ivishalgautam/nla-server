@@ -93,7 +93,7 @@ async function sendQueryEmail(studentId, studentName, testId, testName) {
             <!-- Add more rows with data here if needed -->
           </tbody>
         </table>
-        <a style="text-align:center; display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 20px; width: 100%;"  href="http:/nlaacademy.in/auth/login/admin?callback=http:/nlaacademy.in/admin/students/update/${studentId}">Assign test</a>
+        <a style="text-align:center; display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 20px; width: 100%;"  href="https:/nlaolympiad.in/auth/login/admin?callback=https:/nlaolympiad.in/admin/students/update/${studentId}">Assign test</a>
       </body>
       </html>
     `,
