@@ -117,7 +117,7 @@ async function getAnswerSheet(req, res) {
     }
 
     const questions = await pool.query(
-      `SELECT * FROM questions WHERE test_id = $1`,
+      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id ASC;`,
       [testId]
     );
     res.json({ questions: questions.rows, studentAnswers });
