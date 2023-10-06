@@ -31,10 +31,10 @@ async function createTest(req, res) {
       startDateIST,
       endDateIST,
     });
-    console.log({
-      sDate,
-      eDate,
-    });
+    // console.log({
+    //   sDate,
+    //   eDate,
+    // });
     console.log({
       startDateIST: startDateIST.format(),
       endDateIST: endDateIST.format(),
