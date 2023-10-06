@@ -4,21 +4,16 @@ async function createGrade(req, res) {
   try {
     const { name } = req.body;
 
-    if (typeof parseInt(name) === number) {
-    }
-
-    const gradeExist = await pool.query(`SELECT * FROM grades WHERE id = $1`, [
-      name,
-    ]);
+    const gradeExist = await pool.query(
+      `SELECT * FROM grades WHERE name = $1`,
+      [name]
+    );
 
     if (gradeExist.rowCount > 0) {
-      return res.status(400).json({ message: `Grade ${name} already exist!` });
+      return res.status(400).json({ message: `'${name}' already exist!` });
     }
 
-    await pool.query(
-      `INSERT INTO grades (id, name) VALUES ($1, $2) returning *`,
-      [parseInt(name), `Grade ${name}`]
-    );
+    await pool.query(`INSERT INTO grades (name) VALUES ($1);`, [name]);
 
     res.json({ message: "Grade created successfully." });
   } catch (error) {
