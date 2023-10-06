@@ -24,6 +24,16 @@ async function createTest(req, res) {
       .second(0);
     const endDateIST = moment(end_time).tz("Asia/Kolkata").minute(0).second(0);
 
+    console.log({ start_time, end_time });
+    console.log({
+      startDateIST,
+      endDateIST,
+    });
+    console.log({
+      startDateIST: startDateIST.format(),
+      endDateIST: endDateIST.format(),
+    });
+
     const amount =
       test_type === "dashboard"
         ? 300
@@ -40,8 +50,8 @@ async function createTest(req, res) {
         parseInt(grade),
         test_type,
         subject,
-        new Date(startDateIST),
-        new Date(endDateIST),
+        startDateIST.format(),
+        endDateIST.format(),
         duration,
         instructions,
         amount,
@@ -365,7 +375,7 @@ async function getAdminTests(req, res) {
         SELECT test_id, COUNT(*) AS total_questions
         FROM questions
         GROUP BY test_id
-      ) AS q ON t.id = q.test_id`);
+      ) AS q ON t.id = q.test_id ORDER BY t.id DESC;`);
     // const { rows } = await pool.query(`SELECT * FROM tests`);
     res.json(rows);
   } catch (error) {

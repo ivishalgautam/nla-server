@@ -4,6 +4,9 @@ async function createGrade(req, res) {
   try {
     const { name } = req.body;
 
+    if (typeof parseInt(name) === number) {
+    }
+
     const gradeExist = await pool.query(`SELECT * FROM grades WHERE id = $1`, [
       name,
     ]);

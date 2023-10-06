@@ -138,6 +138,17 @@ async function createStudent(req, res) {
         .json({ message: "Student already exist with this email" });
     }
 
+    const phoneExist = await pool.query(
+      `SELECT * FROM students WHERE phone = $1`,
+      [phone]
+    );
+
+    if (phoneExist.rowCount > 0) {
+      res
+        .status(400)
+        .json({ message: "Student already exist with this phone" });
+    }
+
     await pool.query(
       `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`,
       [
