@@ -20,14 +20,9 @@ async function createTest(req, res) {
     // Convert to Indian Standard Time (IST)
     const startDateIST = moment(start_time)
       .tz("Asia/Kolkata")
-      .hour(9)
       .minute(0)
       .second(0);
-    const endDateIST = moment(end_time)
-      .tz("Asia/Kolkata")
-      .hour(21)
-      .minute(0)
-      .second(0);
+    const endDateIST = moment(end_time).tz("Asia/Kolkata").minute(0).second(0);
 
     const amount =
       test_type === "dashboard"
