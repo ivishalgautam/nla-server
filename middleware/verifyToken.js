@@ -25,7 +25,6 @@ function verifyToken(req, res, next) {
       if (err) {
         return res.status(401).json({ message: err });
       } else {
-        req.user = user;
         next();
       }
     });

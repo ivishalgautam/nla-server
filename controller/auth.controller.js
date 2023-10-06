@@ -75,7 +75,8 @@ async function adminLogin(req, res) {
 
 async function validateStudent(req, res) {
   try {
-    console.log({ user: req.user });
+    // console.log("verified");
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
