@@ -8,11 +8,11 @@ const PORT = process.env.PORT;
 app.use(morgan("tiny"));
 app.use(express.json());
 // Configure CORS to allow requests from 'https://nlaolympiad.in' only
-const corsOptions = {
-  origin: "https://nlaolympiad.in",
-};
+// const corsOptions = {
+//   origin: "https://nlaolympiad.in",
+// };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 // admin
 app.use("/api/admin", require("./router/admin"));
