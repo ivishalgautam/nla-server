@@ -133,7 +133,7 @@ async function createStudent(req, res) {
     );
 
     if (studentExist.rowCount > 0) {
-      res
+      return res
         .status(400)
         .json({ message: "Student already exist with this email" });
     }
@@ -144,7 +144,7 @@ async function createStudent(req, res) {
     );
 
     if (phoneExist.rowCount > 0) {
-      res
+      return res
         .status(400)
         .json({ message: "Student already exist with this phone" });
     }
