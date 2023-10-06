@@ -14,13 +14,13 @@ async function createTest(req, res) {
       instructions,
     } = req.body;
 
-    const sDate = new Date(start_time);
-    const eDate = new Date(end_time);
+    // const sDate = new Date(start_time);
+    // const eDate = new Date(end_time);
 
-    sDate.setMinutes(0);
-    sDate.setSeconds(0);
-    eDate.setMinutes(0);
-    eDate.setSeconds(0);
+    // sDate.setMinutes(0);
+    // sDate.setSeconds(0);
+    // eDate.setMinutes(0);
+    // eDate.setSeconds(0);
 
     // Convert to Indian Standard Time (IST)
     const startDateIST = moment(start_time).tz("Asia/Kolkata");
