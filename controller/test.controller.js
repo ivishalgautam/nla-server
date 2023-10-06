@@ -381,12 +381,14 @@ async function getAdminTests(req, res) {
   console.log("hello");
   try {
     const { rows } = await pool.query(`
-      SELECT t.*, q.total_questions FROM tests AS t
+      SELECT t.*, q.total_questions, g.name AS grade_name FROM tests AS t
       LEFT JOIN (
         SELECT test_id, COUNT(*) AS total_questions
         FROM questions
         GROUP BY test_id
-      ) AS q ON t.id = q.test_id ORDER BY t.id DESC;`);
+      ) AS q ON t.id = q.test_id 
+        JOIN grades AS g ON g.id = t.grade 
+        ORDER BY t.id DESC;`);
     // const { rows } = await pool.query(`SELECT * FROM tests`);
     res.json(rows);
   } catch (error) {
