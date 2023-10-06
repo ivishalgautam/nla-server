@@ -14,8 +14,13 @@ async function createTest(req, res) {
       instructions,
     } = req.body;
 
-    // const sDate = new Date(start_time).setHours(9, 0, 0, 0);
-    // const eDate = new Date(end_time).setHours(21, 0, 0, 0);
+    const sDate = new Date(start_time);
+    const eDate = new Date(end_time);
+
+    sDate.setMinutes(0);
+    sDate.setSeconds(0);
+    eDate.setMinutes(0);
+    eDate.setSeconds(0);
 
     // Convert to Indian Standard Time (IST)
     const startDateIST = moment(start_time)
@@ -28,6 +33,10 @@ async function createTest(req, res) {
     console.log({
       startDateIST,
       endDateIST,
+    });
+    console.log({
+      sDate,
+      eDate,
     });
     console.log({
       startDateIST: startDateIST.format(),
@@ -50,8 +59,10 @@ async function createTest(req, res) {
         parseInt(grade),
         test_type,
         subject,
-        startDateIST.format(),
-        endDateIST.format(),
+        // startDateIST.format(),
+        // endDateIST.format(),
+        sDate,
+        eDate,
         duration,
         instructions,
         amount,
