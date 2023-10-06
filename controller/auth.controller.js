@@ -26,7 +26,7 @@ async function login(req, res) {
       `SELECT s.id, s.fullname, g.name AS grade, s.package, s.email, s.phone, s.city, s.pincode, s.is_disabled 
         FROM students AS s 
         JOIN grades AS g ON g.id = s.grade 
-        WHERE s.id = $1`,
+        WHERE s.id = $1;`,
       [credentials.rows[0].student_id]
     );
 
