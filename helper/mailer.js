@@ -37,7 +37,7 @@ async function sendEmail(email, username, password) {
             Your password is: ${password}
           </div>
         </p>
-        <a href="http://nlaacademy.in/auth/login/student" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 20px;">Login to NLA Academy</a>
+        <a href="http://nlaolympiad.in/auth/login/student" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 20px;">Login to NLA Academy</a>
       </body>
     </html>
     `,
