@@ -42,7 +42,7 @@ async function getResults(req, res) {
             s.id as student_id, 
             s.fullname,
             s.school_name,
-            s.grade as class,
+            g.name as class,
             t.id as test_id, 
             t.name as test_name,
             t.test_type,
@@ -53,7 +53,8 @@ async function getResults(req, res) {
         JOIN 
             students s ON sr.student_id = s.id
         JOIN 
-            tests t on sr.test_id = t.id;`);
+            tests t on sr.test_id = t.id 
+        JOIN grades AS g on s.grade = g.id;`);
     res.json(rows);
   } catch (error) {
     console.log(error);
@@ -71,7 +72,7 @@ async function getStudentResults(req, res) {
             s.id as student_id, 
             s.fullname,
             s.school_name,
-            s.grade as class,
+            g.name as class,
             t.id as test_id, 
             t.name as test_name,
             t.test_type,
@@ -83,6 +84,7 @@ async function getStudentResults(req, res) {
             students as s ON sr.student_id = s.id
         JOIN
             tests as t on sr.test_id = t.id
+        JOIN grades as g on s.grade = g.id    
         WHERE
             sr.student_id = $1
             ORDER BY created_at DESC;`,
