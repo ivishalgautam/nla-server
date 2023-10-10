@@ -221,6 +221,15 @@ async function updateStudentById(req, res) {
 async function deleteStudentById(req, res) {
   const studentId = parseInt(req.params.studentId);
   try {
+    const studentExist = await pool.query(
+      `SELECT * FROM students WHERE id = $1`,
+      [studentId]
+    );
+
+    await pool.query(`DELETE FROM leads WHERE email = $1`, [
+      studentExist.rows[0].email,
+    ]);
+
     const { rowCount } = await pool.query(
       `DELETE FROM students WHERE id = $1`,
       [studentId]
