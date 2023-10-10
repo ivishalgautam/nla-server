@@ -123,8 +123,8 @@ async function createStudent(req, res) {
     gender,
     test_assigned,
     school_name,
+    classs,
   } = req.body;
-  // return console.log(req.body);
 
   try {
     const studentExist = await pool.query(
@@ -150,7 +150,7 @@ async function createStudent(req, res) {
     }
 
     await pool.query(
-      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`,
+      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, class, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, (CURRENT_DATE + INTERVAL '1 year')::DATE);`,
       [
         fullname,
         email,
@@ -165,6 +165,7 @@ async function createStudent(req, res) {
         gender,
         test_assigned,
         school_name,
+        classs,
       ]
     );
     res.json({ message: "Student created successfully" });
@@ -179,11 +180,13 @@ async function updateStudentById(req, res) {
   const { ...data } = req.body;
 
   const updateColumns = Object.keys(data)
-    .map((column, key) => `${column} = $${key + 1}`)
+    .map(
+      (column, key) => `${column === "classs" ? "class" : column} = $${key + 1}`
+    )
     .join(", ");
 
   const updateValues = Object.values(data);
-  console.log({ updateColumns, updateValues });
+  // console.log({ updateColumns, updateValues });
 
   try {
     const { rows, rowCount } = await pool.query(

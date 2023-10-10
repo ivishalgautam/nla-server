@@ -83,6 +83,7 @@ CREATE TABLE students(
     city VARCHAR(100) NOT NULL,
     pincode VARCHAR(100) NOT NULL,
     grade INT NOT NULL,
+    class VARCHAR(255),
     school_name VARCHAR(100),
     is_subscribed BOOLEAN DEFAULT false,
     test_assigned VARCHAR(20) [],
@@ -91,6 +92,7 @@ CREATE TABLE students(
     is_disabled BOOLEAN DEFAULT false,
     payment_received BOOLEAN DEFAULT false,
     credentials_created BOOLEAN DEFAULT false,
+    expiration_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -132,6 +134,7 @@ CREATE TABLE leads(
     city VARCHAR(100) NOT NULL,
     pincode VARCHAR(100) NOT NULL,
     grade INT NOT NULL,
+    class VARCHAR(255),
     school_name VARCHAR(100),
     is_subscribed BOOLEAN DEFAULT false,
     test_assigned VARCHAR(20) [],

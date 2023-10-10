@@ -3,6 +3,7 @@ const jwtGenerator = require("../utils/jwtGenerator");
 
 async function login(req, res) {
   const { username, password } = req.body;
+  console.log(req.body);
 
   try {
     const credentials = await pool.query(
@@ -22,13 +23,28 @@ async function login(req, res) {
       return res.status(400).json({ message: "Wrong credentials!" });
     }
 
+    console.log(credentials.rows[0].student_id);
+
+    const isDisabled = await pool.query(
+      `SELECT is_disabled FROM students WHERE id = $1`,
+      [credentials.rows[0].student_id]
+    );
+
+    if (isDisabled.rows[0].is_disabled === true) {
+      return res
+        .status(400)
+        .json({ message: "Your subscription might have expired!" });
+    }
+
     const student = await pool.query(
-      `SELECT s.id, s.fullname, g.name AS grade, s.package, s.email, s.phone, s.city, s.pincode, s.is_disabled 
+      `SELECT s.id as id, s.fullname, g.name AS grade, s.package, s.email, s.phone, s.city, s.pincode, s.is_disabled 
         FROM students AS s 
         JOIN grades AS g ON g.id = s.grade 
         WHERE s.id = $1;`,
       [credentials.rows[0].student_id]
     );
+
+    console.log(student.rows);
 
     const jwtToken = jwtGenerator({
       id: student.rows[0].id,

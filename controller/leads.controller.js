@@ -110,6 +110,7 @@ async function createLead(req, res) {
 
     res.json({
       message: `Registered successfully and your credentials sent to: ${student.rows[0].email}`,
+      credentials: { username, password },
     });
   } catch (error) {
     console.log(error);
