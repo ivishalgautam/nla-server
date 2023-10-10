@@ -233,7 +233,7 @@ async function getStudentById(req, res) {
   const studentId = parseInt(req.params.studentId);
   try {
     const { rows, rowCount } = await pool.query(
-      `SELECT s.*, g.name AS grade_name FROM students AS s JOIN grades AS g ON g.id = s.grade WHERE s.id = $1`,
+      `SELECT * FROM students WHERE id = $1`,
       [studentId]
     );
 
@@ -249,7 +249,9 @@ async function getStudentById(req, res) {
 
 async function getStudents(req, res) {
   try {
-    const { rows } = await pool.query(`SELECT * FROM students ORDER BY id;`);
+    const { rows } = await pool.query(
+      `SELECT s.*, g.name AS grade_name FROM students AS s JOIN grades AS g ON g.id = s.grade WHERE s.id = $1;`
+    );
 
     res.json(rows);
   } catch (error) {
