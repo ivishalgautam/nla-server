@@ -54,7 +54,11 @@ async function login(req, res) {
       is_disabled: student.rows[0].is_disabled,
     });
 
-    res.json({ student: student.rows[0], access_token: jwtToken });
+    res.json({
+      student: student.rows[0],
+      access_token: jwtToken,
+      credentials: { username, password },
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
