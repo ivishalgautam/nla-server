@@ -46,7 +46,7 @@ router.get("/students", verifyTokenAndAuthorization, Student.getStudents);
 router.get(
   "/students/:studentId",
   verifyTokenAndAuthorization,
-  Student.getStudentById
+  Student.getStudentByIdForAdmin
 );
 router.put(
   "/students/:studentId",

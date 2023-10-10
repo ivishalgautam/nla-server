@@ -233,6 +233,24 @@ async function getStudentById(req, res) {
   const studentId = parseInt(req.params.studentId);
   try {
     const { rows, rowCount } = await pool.query(
+      `SELECT s.*, g.name AS grade_name FROM students AS s JOIN grades AS g ON g.id = s.grade WHERE s.id = $1`,
+      [studentId]
+    );
+
+    if (rowCount === 0)
+      return res.status(404).json({ message: "Student not found!" });
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+async function getStudentByIdForAdmin(req, res) {
+  const studentId = parseInt(req.params.studentId);
+  try {
+    const { rows, rowCount } = await pool.query(
       `SELECT * FROM students WHERE id = $1`,
       [studentId]
     );
@@ -308,6 +326,7 @@ module.exports = {
   updateStudentById,
   deleteStudentById,
   getStudentById,
+  getStudentByIdForAdmin,
   getStudents,
   generateCredentials,
   importStudents,
