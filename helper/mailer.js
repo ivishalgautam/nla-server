@@ -2,11 +2,9 @@ require("dotenv").config();
 let nodemailer = require("nodemailer");
 
 let transporter = nodemailer.createTransport({
-  host: "smtp.zoho.com",
-  secure: true,
-  port: 465,
+  service: "gmail",
   auth: {
-    user: "info@nlaacademy.in",
+    user: "tech.nlaacademy@gmail.com",
     pass: process.env.GMAIL_PASS,
   },
 });
