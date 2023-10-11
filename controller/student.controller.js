@@ -44,15 +44,15 @@ async function importStudents(req, res) {
         if (studentExist.rowCount > 0) {
           return;
         }
-
+        // console.log(dob);
         const student = await pool.query(
-          `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, school_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning *;`,
+          `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, school_name, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, (CURRENT_DATE + INTERVAL '1 year')::DATE)) returning *;`,
           [
             fullname,
             email,
             phone,
             guardian_name,
-            new Date(),
+            dob,
             city,
             pincode,
             subject,
@@ -279,7 +279,9 @@ async function getStudentByIdForAdmin(req, res) {
 
 async function getStudents(req, res) {
   try {
-    const { rows } = await pool.query(`SELECT * FROM students;`);
+    const { rows } = await pool.query(
+      `SELECT * FROM students ORDER BY id DESC;`
+    );
 
     res.json(rows);
   } catch (error) {
