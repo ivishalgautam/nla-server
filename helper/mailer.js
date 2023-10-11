@@ -2,9 +2,11 @@ require("dotenv").config();
 let nodemailer = require("nodemailer");
 
 let transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.zoho.com",
+  secure: true,
+  port: 465,
   auth: {
-    user: "vishal.gautam.5812@gmail.com",
+    user: "info@nlaacademy.in",
     pass: process.env.GMAIL_PASS,
   },
 });
@@ -26,7 +28,7 @@ async function sendEmail(email, username, password) {
     subject: "NLA Credentials",
     html: `
     <html>
-      <body style="font-family: Arial, sans-serif; background-color: #f2f2f2; text-align: center;">
+      <body style="font-family: Arial, sans-serif; background-color: #f2f2f2; text-align: center; padding: 20px;">
         <h1 style="color: #3498db;">NLA ACADEMY</h1>
         <p style="margin-top: 20px;">
           Your username and password are below:
@@ -37,7 +39,7 @@ async function sendEmail(email, username, password) {
             Your password is: ${password}
           </div>
         </p>
-        <a href="http://nlaolympiad.in/auth/login/student" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 20px;">Login to NLA Academy</a>
+        <a href="https://nlaacademy.in/login.php" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 20px;">Login to NLA Academy</a>
       </body>
     </html>
     `,
@@ -65,7 +67,7 @@ async function sendResetPasswordMail(email, link) {
 async function sendQueryEmail(studentId, studentName, testId, testName) {
   let mailOptions = {
     from: process.env.MAIL_ID,
-    to: "vishal.gautam.5812@gmail.com",
+    to: "info@nlaacademy.in",
     subject: "Student olympiad test query",
     html: `
       <!DOCTYPE html>
