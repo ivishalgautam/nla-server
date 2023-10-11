@@ -46,7 +46,7 @@ async function importStudents(req, res) {
         }
         console.log(data);
         const student = await pool.query(
-          `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, school_name, expiration_date) VALUES ($1, $2, $3, $4, TO_DATE($5, 'MM/DD/YYYY'), $6, $7, $8, $9, $10, $11, $12, (CURRENT_DATE + INTERVAL '1 year')::DATE)) returning *;`,
+          `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, school_name, expiration_date) VALUES ($1, $2, $3, $4, TO_DATE($5, 'MM/DD/YYYY'), $6, $7, $8, $9, $10, $11, $12, (CURRENT_DATE + INTERVAL '1 year')::DATE) returning *;`,
           [
             fullname,
             email,
