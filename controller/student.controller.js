@@ -52,7 +52,7 @@ async function importStudents(req, res) {
             email,
             phone,
             guardian_name,
-            new Date(dob).toISOString(),
+            dob,
             city,
             pincode,
             subject,
