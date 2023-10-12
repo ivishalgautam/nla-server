@@ -90,7 +90,7 @@ async function getQuestionsByTestId(req, res) {
       return res.json([]);
     }
     const { rows } = await pool.query(
-      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id DESC;`,
+      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id ASC;`,
       [testId]
     );
 
@@ -106,7 +106,7 @@ async function getAdminQuestionsByTestId(req, res) {
 
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id DESC;`,
+      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id ASC;`,
       [testId]
     );
 
