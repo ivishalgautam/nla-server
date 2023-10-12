@@ -8,27 +8,30 @@ async function createQuestion(req, res) {
     await pool.query("DELETE FROM questions WHERE test_id = $1", [testId]);
 
     const questionRows = [];
-    data.forEach(async (item) => {
+    const promises = data.map(async (item) => {
       // console.log(item);
       for (const [key, value] of Object.entries(item)) {
         console.log(Object.entries(item));
-        if (typeof value === "object") {
-          if (Object.values(value).some((i) => i !== "")) {
-            const { rows } = await pool.query(
-              `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4) returning *`,
-              [
-                Object.values(value),
-                item["answer"],
-                parseInt(testId),
-                item["heading"],
-              ]
-            );
-            // console.log(rows[0]);
-            questionRows.push(rows[0]);
-          }
+        if (
+          typeof value === "object" &&
+          Object.values(value).some((i) => i !== "")
+        ) {
+          const { rows } = await pool.query(
+            `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4) returning *`,
+            [
+              Object.values(value),
+              item["answer"],
+              parseInt(testId),
+              item["heading"],
+            ]
+          );
+          // console.log(rows[0]);
+          questionRows.push(rows[0]);
         }
       }
     });
+
+    await Promise.all(promises);
 
     res.json({ message: "Questions added successfully." });
   } catch (error) {
