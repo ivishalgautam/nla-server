@@ -11,6 +11,7 @@ async function createQuestion(req, res) {
     data.forEach(async (item) => {
       console.log(item);
       for (const [key, value] of Object.entries(item)) {
+        console.log(Object.entries(item));
         if (typeof value === "object") {
           if (Object.values(value).some((i) => i !== "")) {
             const { rows } = await pool.query(
