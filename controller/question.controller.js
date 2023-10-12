@@ -15,16 +15,25 @@ async function createQuestion(req, res) {
             typeof value === "object" &&
             Object.values(value).some((i) => i !== "")
           ) {
-            const { rows } = await pool.query(
-              `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4) returning *`,
-              [
-                Object.values(value),
-                item["answer"],
-                parseInt(testId),
-                item["heading"],
-              ]
-            );
-            questionRows.push(rows[0]);
+            await new Promise((resolve) => {
+              pool.query(
+                `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4) returning *`,
+                [
+                  Object.values(value),
+                  item["answer"],
+                  parseInt(testId),
+                  item["heading"],
+                ],
+                (err, result) => {
+                  if (err) {
+                    console.error(err);
+                  } else {
+                    questionRows.push(result.rows[0]);
+                  }
+                  resolve(); // Resolve the Promise to continue to the next iteration.
+                }
+              );
+            });
           }
         }
       }
