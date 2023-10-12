@@ -9,7 +9,7 @@ async function createQuestion(req, res) {
 
     const questionRows = [];
     data.forEach(async (item) => {
-      console.log(item);
+      // console.log(item);
       for (const [key, value] of Object.entries(item)) {
         console.log(Object.entries(item));
         if (typeof value === "object") {
@@ -23,7 +23,7 @@ async function createQuestion(req, res) {
                 item["heading"],
               ]
             );
-            console.log(rows[0]);
+            // console.log(rows[0]);
             questionRows.push(rows[0]);
           }
         }
