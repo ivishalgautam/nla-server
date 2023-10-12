@@ -9,6 +9,7 @@ async function createQuestion(req, res) {
 
     const questionRows = [];
     data.forEach(async (item) => {
+      console.log(item);
       for (const [key, value] of Object.entries(item)) {
         if (typeof value === "object") {
           if (Object.values(value).some((i) => i !== "")) {
