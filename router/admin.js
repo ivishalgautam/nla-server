@@ -76,7 +76,12 @@ router.post(
   verifyTokenAndAuthorization,
   Question.createQuestion
 );
-router.get("/questions/", verifyTokenAndAuthorization, Question.getQuestions);
+router.get("/questions", verifyTokenAndAuthorization, Question.getQuestions);
+router.get(
+  "/questions/:testId",
+  verifyTokenAndAuthorization,
+  Question.getAdminQuestionsByTestId
+);
 router.put(
   "/questions/:questionId",
   verifyTokenAndAuthorization,

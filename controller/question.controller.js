@@ -101,6 +101,22 @@ async function getQuestionsByTestId(req, res) {
   }
 }
 
+async function getAdminQuestionsByTestId(req, res) {
+  const testId = parseInt(req.params.testId);
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id ASC;`,
+      [testId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
 async function getQuestions(req, res) {
   try {
     const { rows, rowCount } = await pool.query(`SELECT * FROM questions`);
@@ -120,4 +136,5 @@ module.exports = {
   deleteQuestionById,
   getQuestionsByTestId,
   getQuestions,
+  getAdminQuestionsByTestId,
 };
