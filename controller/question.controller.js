@@ -9,12 +9,12 @@ async function createQuestion(req, res) {
 
     const questionRows = [];
     data.forEach(async (item) => {
-      console.log(item);
+      // console.log(item);
       for (const [key, value] of Object.entries(item)) {
         if (typeof value === "object") {
           if (Object.values(value).some((i) => i !== "")) {
             const { rows } = await pool.query(
-              `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4)`,
+              `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4) returning *`,
               [
                 Object.values(value),
                 item["answer"],
@@ -22,6 +22,7 @@ async function createQuestion(req, res) {
                 item["heading"],
               ]
             );
+            console.log(rows[0]);
             questionRows.push(rows[0]);
           }
         }
