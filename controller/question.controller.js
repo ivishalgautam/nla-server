@@ -9,9 +9,9 @@ async function createQuestion(req, res) {
 
     const questionRows = [];
     const promises = data.map(async (item) => {
-      // console.log(item);
+      console.log(item);
       for (const [key, value] of Object.entries(item)) {
-        console.log(Object.entries(item));
+        // console.log(Object.entries(item));
         if (
           typeof value === "object" &&
           Object.values(value).some((i) => i !== "")
