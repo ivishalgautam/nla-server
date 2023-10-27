@@ -2,10 +2,21 @@ const { pool } = require("../config/db");
 
 async function createQuestion(req, res) {
   const { data, testId } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
 
   try {
-    await pool.query("DELETE FROM questions WHERE test_id = $1", [testId]);
+    await new Promise((resolve) => {
+      pool.query(
+        "DELETE FROM questions WHERE test_id = $1",
+        [testId],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+          }
+          resolve(); // Resolve the Promise to continue to the next iteration.
+        }
+      );
+    });
 
     const questionRows = [];
     async function insertDataSequentially() {
