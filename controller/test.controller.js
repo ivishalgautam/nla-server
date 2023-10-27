@@ -213,7 +213,7 @@ async function getStudentTestsByCategory(req, res) {
         [student?.rows[0]?.id, studentTests]
       );
       const testTakenIds = testAlreadyTaken?.rows?.map((i) => i.test_id);
-      console.log(studentTests);
+      // console.log(studentTests);
       if (testAlreadyTaken?.rowCount > 0) {
         tests = allTests.rows
           .filter((item) =>
