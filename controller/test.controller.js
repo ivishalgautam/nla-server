@@ -41,8 +41,6 @@ async function createTest(req, res) {
         subject,
         startDateIST.format(),
         endDateIST.format(),
-        // new Date(sDate),
-        // new Date(eDate),
         duration,
         instructions,
         amount,
@@ -72,16 +70,9 @@ async function updateTestById(req, res) {
   // const eDate = new Date(end_time).setHours(21, 0, 0, 0);
 
   // Convert to Indian Standard Time (IST)
-  const startDateIST = moment(start_time)
-    .tz("Asia/Kolkata")
-    .hour(9)
-    .minute(0)
-    .second(0);
-  const endDateIST = moment(end_time)
-    .tz("Asia/Kolkata")
-    .hour(21)
-    .minute(0)
-    .second(0);
+  // Convert to Indian Standard Time (IST)
+  const startDateIST = moment(start_time).tz("Asia/Kolkata");
+  const endDateIST = moment(end_time).tz("Asia/Kolkata");
 
   try {
     const { rowCount } = await pool.query(
@@ -91,8 +82,8 @@ async function updateTestById(req, res) {
         parseInt(grade),
         test_type,
         subject,
-        new Date(startDateIST),
-        new Date(endDateIST),
+        startDateIST.format(),
+        endDateIST.format(),
         duration,
         instructions,
         is_published,
