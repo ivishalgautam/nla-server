@@ -237,25 +237,25 @@ async function getStudentTestsByCategory(req, res) {
                 .filter((i) => !testTakenIds?.includes(i))
                 .includes(item.id)
           )
-          .filter((item) => item.grade <= grade);
+          .filter((item) => item.grade == grade);
       } else {
         tests = allTests.rows
           .filter(
             (item) =>
               item.test_type === "practice" || studentTests.includes(item.id)
           )
-          .filter((item) => item.grade <= grade);
+          .filter((item) => item.grade == grade);
       }
     } else if (package === "eligibility") {
       tests = [
         allTests.rows
           .filter((item) => item.test_type === "eligibility")
-          .filter((item) => item.grade <= grade)[0],
+          .filter((item) => item.grade == grade)[0],
       ];
       console.log(
         allTests.rows
           .filter((item) => item.test_type === "eligibility")
-          .filter((item) => item.grade <= grade)[0]
+          .filter((item) => item.grade == grade)[0]
       );
     }
 
