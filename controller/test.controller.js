@@ -349,17 +349,23 @@ async function getUpcomingTests(req, res) {
 
 // admin
 async function getAdminTests(req, res) {
-  console.log("hello");
   try {
     const { rows } = await pool.query(`
-      SELECT t.*, q.total_questions, g.name AS grade_name FROM tests AS t
-      LEFT JOIN (
-        SELECT test_id, COUNT(*) AS total_questions
-        FROM questions
-        GROUP BY test_id
-      ) AS q ON t.id = q.test_id 
-        JOIN grades AS g ON g.id = t.grade 
-        ORDER BY t.id DESC;`);
+      SELECT 
+        t.*, 
+        count(q.id) as total_questions, 
+        g.name AS grade_name 
+      FROM 
+        tests AS t
+      LEFT JOIN 
+        questions AS q ON t.id = q.test_id 
+      LEFT JOIN 
+        grades AS g ON g.id = t.grade
+        GROUP BY
+          t.id,
+          g.name
+        ORDER BY 
+          t.id DESC;`);
     // const { rows } = await pool.query(`SELECT * FROM tests`);
     res.json(rows);
   } catch (error) {
