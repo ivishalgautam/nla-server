@@ -151,8 +151,13 @@ async function createStudent(req, res) {
         .json({ message: "Student already exist with this phone" });
     }
 
+    const currentDate = new Date();
+    const expirationDate = new Date();
+    expirationDate.setFullYear(currentDate.getFullYear() + 1);
+    const formattedExpirationDate = expirationDate.toISOString().split("T")[0];
+
     await pool.query(
-      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, class, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, (CURRENT_DATE + INTERVAL '1 year')::DATE);`,
+      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, class, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15;`,
       [
         fullname,
         email,
@@ -168,6 +173,7 @@ async function createStudent(req, res) {
         test_assigned,
         school_name,
         classs,
+        formattedExpirationDate,
       ]
     );
     res.json({ message: "Student created successfully" });
@@ -284,6 +290,14 @@ async function getStudents(req, res) {
     const { rows } = await pool.query(
       `SELECT * FROM students ORDER BY id DESC;`
     );
+
+    // const page =
+    //   req.query.page && Number(req.query.page) > 0 ? Number(req.query.page) : 1;
+
+    // const per_page =
+    //   req.query.per_page && Number(req.query.per_page) > 0
+    //     ? Number(req.query.per_page)
+    //     : 10;
 
     res.json(rows);
   } catch (error) {

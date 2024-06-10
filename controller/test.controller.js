@@ -228,7 +228,6 @@ async function getStudentTestsByCategory(req, res) {
       );
       const testTakenIds = testAlreadyTaken?.rows?.map((i) => i.test_id);
       if (testAlreadyTaken.rowCount > 0) {
-        console.log(studentTests.filter((i) => !testTakenIds?.includes(i)));
         tests = allTests.rows
           .filter(
             (item) =>
@@ -252,11 +251,6 @@ async function getStudentTestsByCategory(req, res) {
           .filter((item) => item.test_type === "eligibility")
           .filter((item) => item.grade == grade)[0],
       ];
-      console.log(
-        allTests.rows
-          .filter((item) => item.test_type === "eligibility")
-          .filter((item) => item.grade == grade)[0]
-      );
     }
 
     res.json(tests);
