@@ -156,10 +156,8 @@ async function createStudent(req, res) {
     expirationDate.setFullYear(currentDate.getFullYear() + 1);
     const formattedExpirationDate = expirationDate.toISOString().split("T")[0];
 
-    console.log({ formattedExpirationDate });
-
     await pool.query(
-      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, class, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15;`,
+      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, class, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, (CURRENT_DATE + INTERVAL '1 year')::DATE);`,
       [
         fullname,
         email,
@@ -175,7 +173,6 @@ async function createStudent(req, res) {
         test_assigned,
         school_name,
         classs,
-        formattedExpirationDate,
       ]
     );
     res.json({ message: "Student created successfully" });
