@@ -277,9 +277,13 @@ async function getFilteredTests(req, res) {
   console.log(req.query);
   try {
     if (grade && subject) {
+      // const tests = await pool.query(
+      //   `SELECT * FROM tests WHERE grade = $1 AND subject = $2 AND test_type = 'olympiad';`,
+      //   [grade ?? "", subject ?? ""]
+      // );
       const tests = await pool.query(
-        `SELECT * FROM tests WHERE grade = $1 AND subject = $2 AND test_type = 'olympiad';`,
-        [grade ?? "", subject ?? ""]
+        `SELECT * FROM tests WHERE subject = $1 AND test_type = 'olympiad';`,
+        [subject ?? ""]
       );
       return res.json(tests.rows);
     } else {
