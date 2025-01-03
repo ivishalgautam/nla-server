@@ -35,7 +35,8 @@ async function getResults(req, res) {
             t.name as test_name,
             t.test_type,
             t.subject,
-            t.created_at as held_on
+            t.created_at as held_on,
+            COUNT(s.id) OVER()::integer total
         FROM 
             student_results sr
         JOIN 
@@ -49,7 +50,7 @@ async function getResults(req, res) {
       `,
       [limit, offset]
     );
-    res.json(rows);
+    res.json({ results: rows, total: rows?.[0]?.total ?? 0 });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
