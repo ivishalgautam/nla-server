@@ -106,6 +106,7 @@ async function getStudentResults(req, res) {
       let totalQuestions = item.right_answers?.length;
 
       if (item.user_answers && item.right_answers) {
+        console.log(item.user_answers, item.right_answers);
         item.user_answers.forEach((answer, index) => {
           if (answer !== null) studentAttempted += 1;
           if (answer === item.right_answers[index]) {
@@ -123,14 +124,6 @@ async function getStudentResults(req, res) {
       };
     });
 
-    console.log(
-      updatedResults.map((item) => {
-        console.log({
-          userAnswers: JSON.stringify(item.user_answers),
-          rightAnswers: JSON.stringify(item.right_answers),
-        });
-      })
-    );
     res.json(updatedResults);
   } catch (error) {
     console.log(error);
