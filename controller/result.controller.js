@@ -123,7 +123,14 @@ async function getStudentResults(req, res) {
       };
     });
 
-    console.log({ updatedResults });
+    console.log(
+      updatedResults.map((item) => {
+        console.log({
+          userAnswers: JSON.stringify(item.user_answers),
+          rightAnswers: JSON.stringify(item.right_answers),
+        });
+      })
+    );
     res.json(updatedResults);
   } catch (error) {
     console.log(error);
