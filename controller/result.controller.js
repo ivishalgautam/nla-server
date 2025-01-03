@@ -109,7 +109,7 @@ async function getStudentResults(req, res) {
         console.log(item.user_answers, item.right_answers);
         item.user_answers.forEach((answer, index) => {
           if (answer !== null) studentAttempted += 1;
-          if (answer === item.right_answers[index]) {
+          if (answer == item.right_answers[index]) {
             studentPoints += 1;
           }
         });
