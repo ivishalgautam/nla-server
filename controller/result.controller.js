@@ -43,8 +43,9 @@ async function getResults(req, res) {
         JOIN 
             tests t on sr.test_id = t.id 
         JOIN grades AS g on s.grade = g.id
-        ORDER BY s.id, sr.created_at DESC;
-        LIMIT $1 OFFSET $2
+        ORDER BY s.id, sr.created_at DESC
+        LIMIT $1 
+        OFFSET $2
       `,
       [limit, offset]
     );
