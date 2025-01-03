@@ -106,7 +106,10 @@ async function getStudentResults(req, res) {
       let totalQuestions = item.right_answers?.length;
 
       if (item.user_answers && item.right_answers) {
-        console.log(item.user_answers, item.right_answers);
+        console.log(
+          JSON.stringify(item.user_answers),
+          JSON.stringify(item.right_answers)
+        );
         item.user_answers.forEach((answer, index) => {
           if (answer !== null) studentAttempted += 1;
           if (answer == item.right_answers[index]) {
