@@ -1,5 +1,4 @@
 function calculateGrade(studentPoints, totalPoints, totalQuestions) {
-  console.log({ studentPoints, totalPoints, totalQuestions });
   if (totalPoints === 0 || totalQuestions === 0) {
     return "N/A";
   }
