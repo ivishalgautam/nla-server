@@ -81,7 +81,11 @@ async function getStudentResults(req, res) {
             t.test_type,
             t.subject,
             t.start_time as held_on,
-            json_agg(qs.answer) as right_answers
+            json_agg(
+              json_build_object(
+                'answer', qs.answer
+              )
+            ) as right_answers
         FROM
             student_results as sr
         JOIN
@@ -104,7 +108,7 @@ async function getStudentResults(req, res) {
       let studentAttempted = 0;
       let totalPoints = item.right_answers?.length;
       let totalQuestions = item.right_answers?.length;
-
+      console.log(item.right_answers);
       if (item.user_answers && item.right_answers) {
         console.log(
           JSON.stringify(item.user_answers),
@@ -112,7 +116,7 @@ async function getStudentResults(req, res) {
         );
         item.user_answers.forEach((answer, index) => {
           if (answer !== null) studentAttempted += 1;
-          if (answer == item.right_answers[index]) {
+          if (answer == item.right_answers[index].answer) {
             studentPoints += 1;
           }
         });
