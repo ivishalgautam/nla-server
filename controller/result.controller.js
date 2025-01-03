@@ -25,28 +25,36 @@ async function getResults(req, res) {
   try {
     const { rows, rowCount } = await pool.query(
       `
-      SELECT DISTINCT ON (s.id)
-            sr.*, 
-            s.id as student_id, 
-            s.fullname,
-            s.school_name,
-            g.name as class,
-            t.id as test_id, 
-            t.name as test_name,
-            t.test_type,
-            t.subject,
-            t.created_at as held_on,
-            COUNT(s.id) OVER()::integer total
-        FROM 
-            student_results sr
-        JOIN 
-            students s ON sr.student_id = s.id
-        JOIN 
-            tests t on sr.test_id = t.id 
-        JOIN grades AS g on s.grade = g.id
-        ORDER BY s.id, sr.created_at DESC
-        LIMIT $1 
-        OFFSET $2
+      WITH distinct_students AS (
+          SELECT DISTINCT ON (s.id)
+              sr.*, 
+              s.id AS student_id, 
+              s.fullname,
+              s.school_name,
+              g.name AS class,
+              t.id AS test_id, 
+              t.name AS test_name,
+              t.test_type,
+              t.subject,
+              t.created_at AS held_on
+          FROM 
+              student_results sr
+          JOIN 
+              students s ON sr.student_id = s.id
+          JOIN 
+              tests t ON sr.test_id = t.id 
+          JOIN 
+              grades g ON s.grade = g.id
+          ORDER BY 
+              s.id, sr.created_at DESC
+      )
+      SELECT 
+          *,
+          (SELECT COUNT(*) FROM distinct_students) AS total
+      FROM 
+          distinct_students
+      LIMIT $1 
+      OFFSET $2
       `,
       [limit, offset]
     );
