@@ -159,10 +159,6 @@ async function getAllLeads(req, res) {
   try {
     const { rows, rowCount } = await pool.query(`SELECT * FROM leads;`);
 
-    if (rowCount === 0) {
-      return res.json({ message: "Leads not found!" });
-    }
-
     res.json(rows);
   } catch (error) {
     console.log(error);

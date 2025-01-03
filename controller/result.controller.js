@@ -1,33 +1,14 @@
 const { pool } = require("../config/db");
+const { calculateGrade } = require("../helper/grade");
 
 async function createResult(req, res) {
-  const {
-    student_id,
-    test_id,
-    student_points,
-    total_points,
-    student_attempted,
-    total_questions,
-    user_answers,
-    grade,
-    time_taken,
-  } = req.body;
+  const { student_id, test_id, user_answers, time_taken } = req.body;
   console.log(req.body);
   try {
     const result = await pool.query(
-      `INSERT INTO student_results (student_id, test_id, student_points, total_points, student_attempted, total_questions, grade, user_answers, time_taken)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *`,
-      [
-        student_id,
-        test_id,
-        student_points,
-        total_points,
-        student_attempted,
-        total_questions,
-        grade,
-        user_answers,
-        time_taken,
-      ]
+      `INSERT INTO student_results (student_id, test_id, user_answers, time_taken)
+       VALUES ($1, $2, $3, $4) returning *`,
+      [student_id, test_id, user_answers, time_taken]
     );
     // console.log(result.rows);
     res.json(result.rows);
@@ -37,8 +18,13 @@ async function createResult(req, res) {
 }
 
 async function getResults(req, res) {
+  const page = req.query.page ? Number(req.query.page) : 1;
+  const limit = req.query.limit ? Number(req.query.limit) : 10;
+  const offset = (page - 1) * limit;
+  console.log({ page, limit, offset });
   try {
-    const { rows, rowCount } = await pool.query(`
+    const { rows, rowCount } = await pool.query(
+      `
       SELECT DISTINCT ON (s.id)
             sr.*, 
             s.id as student_id, 
@@ -56,7 +42,12 @@ async function getResults(req, res) {
             students s ON sr.student_id = s.id
         JOIN 
             tests t on sr.test_id = t.id 
-        JOIN grades AS g on s.grade = g.id;`);
+        JOIN grades AS g on s.grade = g.id
+        ORDER BY s.id, sr.created_at DESC;
+        LIMIT $1 OFFSET $2
+      `,
+      [limit, offset]
+    );
     res.json(rows);
   } catch (error) {
     console.log(error);
@@ -79,20 +70,51 @@ async function getStudentResults(req, res) {
             t.name as test_name,
             t.test_type,
             t.subject,
-            t.start_time as held_on
+            t.start_time as held_on,
+            json_agg(qs.answer) as right_answers
         FROM
             student_results as sr
         JOIN
             students as s ON sr.student_id = s.id
         JOIN
             tests as t on sr.test_id = t.id
+        JOIN
+            questions as qs on qs.test_id = t.id
         JOIN grades as g on s.grade = g.id    
         WHERE
-            sr.student_id = $1
-            ORDER BY created_at DESC;`,
+          sr.student_id = $1
+        GROUP BY
+          sr.id, s.id, g.name, t.id
+        ORDER BY created_at DESC
+        ;`,
       [studentId]
     );
-    res.json(rows);
+    const updatedResults = rows.map((item) => {
+      let studentPoints = 0;
+      let studentAttempted = 0;
+      let totalPoints = item.right_answers?.length;
+      let totalQuestions = item.right_answers?.length;
+
+      if (item.user_answers && item.right_answers) {
+        item.user_answers.forEach((answer, index) => {
+          if (answer !== null) studentAttempted += 1;
+          if (answer === item.right_answers[index]) {
+            studentPoints += 1;
+          }
+        });
+      }
+      return {
+        ...item,
+        student_points: studentPoints,
+        student_attempted: studentAttempted,
+        total_points: totalPoints,
+        total_questions: totalQuestions,
+        grade: calculateGrade(studentPoints, totalPoints, totalQuestions),
+      };
+    });
+
+    console.log({ updatedResults });
+    res.json(updatedResults);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
@@ -102,7 +124,6 @@ async function getStudentResults(req, res) {
 async function getAnswerSheet(req, res) {
   const { studentId, testId } = req.params;
   const { t } = req.query;
-  console.log({ t });
   try {
     let studentAnswers;
     if (studentId && testId && t) {
