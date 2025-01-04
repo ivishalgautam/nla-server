@@ -157,7 +157,9 @@ async function getLeadById(req, res) {
 
 async function getAllLeads(req, res) {
   try {
-    const { rows, rowCount } = await pool.query(`SELECT * FROM leads;`);
+    const { rows, rowCount } = await pool.query(
+      `SELECT * FROM leads ORDER BY id DESC;`
+    );
 
     res.json(rows);
   } catch (error) {
