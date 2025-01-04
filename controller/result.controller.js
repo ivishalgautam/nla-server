@@ -31,6 +31,7 @@ async function getResults(req, res) {
               s.id AS student_id, 
               s.fullname,
               s.school_name,
+              s.grade as student_grade,
               g.name AS class,
               t.id AS test_id, 
               t.name AS test_name,
@@ -100,7 +101,6 @@ async function getStudentResults(req, res) {
       [studentId]
     );
 
-    console.log(rows[0]);
     const updatedResults = rows.map((item) => {
       let studentPoints = 0;
       let studentAttempted = 0;

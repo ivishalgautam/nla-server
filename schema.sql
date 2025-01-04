@@ -114,11 +114,6 @@ CREATE TABLE student_results(
     id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(id) ON DELETE CASCADE NOT NULL,
     test_id INT REFERENCES tests(id) ON DELETE CASCADE NOT NULL,
-    student_points INT NOT NULL,
-    total_points INT NOT NULL,
-    student_attempted INT NOT NULL,
-    total_questions INT NOT NULL,
-    grade VARCHAR(255) NOT NULL,
     user_answers VARCHAR(255) [] NOT NULL,
     time_taken VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
