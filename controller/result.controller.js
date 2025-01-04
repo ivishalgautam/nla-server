@@ -31,7 +31,6 @@ async function getResults(req, res) {
               s.id AS student_id, 
               s.fullname,
               s.school_name,
-              s.grade as student_grade,
               g.name AS class,
               t.id AS test_id, 
               t.name AS test_name,
