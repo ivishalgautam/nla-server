@@ -29,7 +29,6 @@ async function getResults(req, res) {
   }
 
   const q = req.query.q ? req.query.q : null;
-  console.log({ q });
   if (q) {
     whereConditions.push(`s.fullname ILIKE $${whereConditions.length + 1}`);
     queryParams.push(`%${q}%`);
@@ -56,6 +55,7 @@ async function getResults(req, res) {
               sr.time_taken,
               s.id AS student_id,
               s.fullname,
+              s.school_name,
               g.name AS class,
               t.test_type,
               t.created_at AS held_on,
