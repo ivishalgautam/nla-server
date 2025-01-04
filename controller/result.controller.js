@@ -22,11 +22,17 @@ async function getResults(req, res) {
   const queryParams = [];
   let whereClause = "";
 
-  // Add conditions based on query parameters
   const type = req.query.type ? req.query.type : null;
   if (type) {
     whereConditions.push(`t.test_type = $${whereConditions.length + 1}`);
     queryParams.push(type);
+  }
+
+  const q = req.query.q ? req.query.q : null;
+  console.log({ q });
+  if (q) {
+    whereConditions.push(`s.fullname ILIKE $${whereConditions.length + 1}`);
+    queryParams.push(`%${q}%`);
   }
 
   if (whereConditions.length > 0) {
@@ -39,21 +45,21 @@ async function getResults(req, res) {
 
   // Add limit and offset parameters
   queryParams.push(limit, offset);
+  console.log({ whereConditions, queryParams });
   try {
     const { rows, rowCount } = await pool.query(
       `
       WITH distinct_students AS (
           SELECT DISTINCT ON (s.id)
-              sr.*, 
-              s.id AS student_id, 
+              sr.id,
+              sr.user_answers,
+              sr.time_taken,
+              s.id AS student_id,
               s.fullname,
-              s.school_name,
               g.name AS class,
-              t.id AS test_id, 
-              t.name AS test_name,
               t.test_type,
-              t.subject,
-              t.created_at AS held_on
+              t.created_at AS held_on,
+              COALESCE(json_agg(qs.answer ORDER BY qs.created_at), '[]') as right_answers
           FROM 
               student_results sr
           JOIN 
@@ -62,12 +68,15 @@ async function getResults(req, res) {
               tests t ON sr.test_id = t.id 
           JOIN 
               grades g ON s.grade = g.id
+          JOIN
+            questions as qs on qs.test_id = t.id
           ${whereClause}
+          GROUP BY sr.id, s.id, g.name, t.id
           ORDER BY 
               s.id DESC
       )
       SELECT 
-          * ,
+          *,
           (SELECT COUNT(*) FROM distinct_students) AS total
       FROM 
           distinct_students
@@ -77,7 +86,30 @@ async function getResults(req, res) {
       queryParams
     );
 
-    res.json({ results: rows, total: rows?.[0]?.total ?? 0 });
+    const updatedResults = rows.map((item) => {
+      let studentPoints = 0;
+      let studentAttempted = 0;
+      let totalPoints = item.right_answers?.length;
+      let totalQuestions = item.right_answers?.length;
+
+      if (item.user_answers && item.right_answers) {
+        item.user_answers.forEach((answer, index) => {
+          if (answer !== null) studentAttempted += 1;
+          if (answer == item.right_answers[index]) {
+            studentPoints += 1;
+          }
+        });
+      }
+
+      const { user_answers, right_answers, ...rest } = item;
+      return {
+        ...rest,
+        student_points: studentPoints,
+        grade: calculateGrade(studentPoints, totalPoints, totalQuestions),
+      };
+    });
+
+    res.json({ results: updatedResults, total: rows?.[0]?.total ?? 0 });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
@@ -173,6 +205,7 @@ async function getAnswerSheet(req, res) {
       `SELECT * FROM questions WHERE test_id = $1 ORDER BY id ASC;`,
       [testId]
     );
+
     res.json({ questions: questions.rows, studentAnswers });
   } catch (error) {
     console.log(error);

@@ -327,7 +327,14 @@ async function generateCredentials(req, res) {
       [studentId]
     );
     if (credentialsExist.rowCount > 0) {
-      return res.json({ message: "Already created!" });
+      await pool.query(
+        `UPDATE student_credentials SET username = $1, password = $2 WHERE student_id = $3 returning *`,
+        [username, password, studentId]
+      );
+      sendEmail(email, username, password);
+
+      return res.json({ message: `Credentials created and sent to: ${email}` });
+      // return res.json({ message: "Already created!" });
     }
 
     const credentials = await pool.query(
