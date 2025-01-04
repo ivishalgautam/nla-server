@@ -18,10 +18,27 @@ async function createResult(req, res) {
 }
 
 async function getResults(req, res) {
+  const whereConditions = [];
+  const queryParams = [];
+  let whereClause = "";
+
+  // Add conditions based on query parameters
+  const type = req.query.type ? req.query.type : null;
+  if (type) {
+    whereConditions.push(`t.test_type = $${whereConditions.length + 1}`);
+    queryParams.push(type);
+  }
+
+  if (whereConditions.length > 0) {
+    whereClause = `WHERE ${whereConditions.join(" AND ")}`;
+  }
+
   const page = req.query.page ? Number(req.query.page) : 1;
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const offset = (page - 1) * limit;
-  console.log({ page, limit, offset });
+
+  // Add limit and offset parameters
+  queryParams.push(limit, offset);
   try {
     const { rows, rowCount } = await pool.query(
       `
@@ -45,26 +62,27 @@ async function getResults(req, res) {
               tests t ON sr.test_id = t.id 
           JOIN 
               grades g ON s.grade = g.id
+          ${whereClause}
           ORDER BY 
-              s.id, sr.created_at DESC
+              s.id DESC
       )
       SELECT 
-          *,
+          * ,
           (SELECT COUNT(*) FROM distinct_students) AS total
       FROM 
           distinct_students
-      LIMIT $1 
-      OFFSET $2
+      LIMIT $${queryParams.length - 1} 
+      OFFSET $${queryParams.length}
       `,
-      [limit, offset]
+      queryParams
     );
+
     res.json({ results: rows, total: rows?.[0]?.total ?? 0 });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
   }
 }
-
 async function getStudentResults(req, res) {
   const studentId = parseInt(req.params.studentId);
   try {
@@ -107,10 +125,6 @@ async function getStudentResults(req, res) {
       let totalQuestions = item.right_answers?.length;
 
       if (item.user_answers && item.right_answers) {
-        console.log(
-          JSON.stringify(item.user_answers),
-          JSON.stringify(item.right_answers)
-        );
         item.user_answers.forEach((answer, index) => {
           if (answer !== null) studentAttempted += 1;
           if (answer == item.right_answers[index]) {
