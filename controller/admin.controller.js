@@ -115,6 +115,26 @@ async function DBUpdate(req, res) {
       END $$;
     `);
 
+    // Check if 'name' column exists
+    const checkColumn = await pool.query(`
+  SELECT column_name FROM information_schema.columns 
+  WHERE table_name = 'admin' AND column_name = 'name';
+`);
+
+    if (checkColumn.rows.length === 0) {
+      // Add the column with a default value
+      await pool.query(`
+    ALTER TABLE admin ADD COLUMN name VARCHAR(100) DEFAULT 'Default Admin' NOT NULL;
+  `);
+      console.log("Added 'name' column to admin table.");
+    } else {
+      // Ensure no NULL values exist
+      await pool.query(`
+    UPDATE admin SET name = 'Default Admin' WHERE name IS NULL;
+  `);
+      console.log("Updated NULL values in 'name' column.");
+    }
+
     // Create Admin Table (if it doesn't exist)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS admin (
