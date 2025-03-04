@@ -115,27 +115,7 @@ async function DBUpdate(req, res) {
       END $$;
     `);
 
-    // Check if 'name' column exists
-    const checkColumn = await pool.query(`
-  SELECT column_name FROM information_schema.columns 
-  WHERE table_name = 'admin' AND column_name = 'name';
-`);
-
-    if (checkColumn.rows.length === 0) {
-      // Add the column with a default value
-      await pool.query(`
-    ALTER TABLE admin ADD COLUMN name VARCHAR(100) DEFAULT 'Default Admin' NOT NULL;
-  `);
-      console.log("Added 'name' column to admin table.");
-    } else {
-      // Ensure no NULL values exist
-      await pool.query(`
-    UPDATE admin SET name = 'Default Admin' WHERE name IS NULL;
-  `);
-      console.log("Updated NULL values in 'name' column.");
-    }
-
-    // Create Admin Table (if it doesn't exist)
+    // ✅ Ensure the Admin Table Exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS admin (
         id SERIAL PRIMARY KEY,
@@ -148,38 +128,23 @@ async function DBUpdate(req, res) {
       );
     `);
 
-    // ✅ Ensure Missing Columns in `admin` Table
-    const adminColumns = [
-      { column: "name", type: "VARCHAR(100) NOT NULL" },
-      { column: "email", type: "VARCHAR(100) NOT NULL UNIQUE" },
-      { column: "password", type: "VARCHAR(255) NOT NULL" },
-      { column: "logo", type: "VARCHAR(255)" },
-      { column: "role", type: "role_enum NOT NULL DEFAULT 'superAdmin'" },
-      { column: "created_at", type: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" },
-    ];
-
-    for (const col of adminColumns) {
-      const checkColumn = await pool.query(
-        `SELECT column_name FROM information_schema.columns WHERE table_name = 'admin' AND column_name = $1`,
-        [col.column]
-      );
-
-      if (checkColumn.rows.length === 0) {
-        await pool.query(
-          `ALTER TABLE admin ADD COLUMN ${col.column} ${col.type};`
-        );
-        console.log(`Added ${col.column} column to admin table`);
-      }
-    }
-
-    // Insert Default Admin
+    // ✅ Ensure Unique Constraint on `email`
     await pool.query(`
-      INSERT INTO admin (name, email, password, role)
-      VALUES ('Vishal', 'vishal@gmail.com', '1234', 'superAdmin')
-      ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password;
+      ALTER TABLE admin ADD CONSTRAINT IF NOT EXISTS unique_email UNIQUE (email);
     `);
 
-    // Add admin_id Column to Existing Tables (if not exists)
+    // ✅ Insert or Update Default Admin
+    await pool.query(`
+      INSERT INTO admin (id, name, email, password, role)
+      VALUES (1, 'Vishal', 'vishal@gmail.com', '1234', 'superAdmin')
+      ON CONFLICT (id) DO UPDATE 
+      SET name = EXCLUDED.name,
+          email = EXCLUDED.email,
+          password = EXCLUDED.password,
+          role = EXCLUDED.role;
+    `);
+
+    // ✅ Add `admin_id` Column to Other Tables if Missing
     const tables = [
       "grades",
       "tests",
@@ -191,7 +156,6 @@ async function DBUpdate(req, res) {
     ];
 
     for (const table of tables) {
-      // Check if the admin_id column already exists
       const checkQuery = `
         SELECT column_name 
         FROM information_schema.columns 
@@ -199,7 +163,6 @@ async function DBUpdate(req, res) {
       `;
       const result = await pool.query(checkQuery, [table]);
 
-      // If the column does not exist, add it
       if (result.rows.length === 0) {
         await pool.query(`
           ALTER TABLE ${table} 
