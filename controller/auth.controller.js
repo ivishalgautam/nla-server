@@ -86,6 +86,7 @@ async function adminLogin(req, res) {
       .json({
         email: admin.rows[0].email,
         role: admin.rows[0].role,
+        name: admin.rows[0].name,
         access_token: jwtToken,
       });
   } catch (error) {
