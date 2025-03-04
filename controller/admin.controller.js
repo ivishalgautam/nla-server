@@ -246,27 +246,40 @@ async function deleteAdmin(req, res) {
 // }
 async function DBUpdate(req, res) {
   try {
-    await pool.query(`
-      DO $$ 
-      BEGIN 
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'role_enum') THEN
-          CREATE TYPE role_enum AS ENUM ('admin', 'superAdmin');
-        END IF;
-      END $$;
-    `);
+    // Add admin_id Column to Existing Tables (if not exists)
+    const tables = [
+      "grades",
+      "tests",
+      "questions",
+      "students",
+      "student_credentials",
+      "student_results",
+      "leads",
+    ];
 
-    await pool.query(`
-      ALTER TABLE admin 
-      ADD COLUMN IF NOT EXISTS name VARCHAR(100) NOT NULL DEFAULT 'Default Admin',
-      ADD COLUMN IF NOT EXISTS role role_enum NOT NULL DEFAULT 'superAdmin'
-    `);
+    for (const table of tables) {
+      // Check if the admin_id column already exists
+      const checkQuery = `
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = $1 AND column_name = 'admin_id';
+      `;
+      const result = await pool.query(checkQuery, [table]);
 
-    await pool.query(`
-      INSERT INTO admin (id, name, email, password, role)
-      VALUES (1, 'Vishal', 'vishal@gmail.com', '1234', 'superAdmin')
-      ON CONFLICT (email) DO UPDATE 
-      SET name = EXCLUDED.name, role = EXCLUDED.role
-    `);
+      // If the column does not exist, add it
+      if (result.rows.length === 0) {
+        await pool.query(`
+          ALTER TABLE ${table}
+          ADD COLUMN admin_id INT NOT NULL DEFAULT 1;
+        `);
+        console.log(`Added admin_id column to ${table}`);
+      } else {
+        console.log(`admin_id column already exists in ${table}`);
+      }
+    }
+
+    // Commit the transaction
+    await pool.query("COMMIT");
 
     res.json({ message: "Database updated successfully" });
   } catch (error) {

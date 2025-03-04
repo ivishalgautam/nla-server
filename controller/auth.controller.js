@@ -84,6 +84,7 @@ async function adminLogin(req, res) {
     return res
       .status(200)
       .json({
+        id: admin.rows[0].id,
         email: admin.rows[0].email,
         role: admin.rows[0].role,
         name: admin.rows[0].name,
