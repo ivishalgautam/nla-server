@@ -247,18 +247,26 @@ async function deleteAdmin(req, res) {
 async function DBUpdate(req, res) {
   try {
     await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'role_enum') THEN
+          CREATE TYPE role_enum AS ENUM ('admin', 'superAdmin');
+        END IF;
+      END $$;
+    `);
+
+    await pool.query(`
       ALTER TABLE admin 
       ADD COLUMN IF NOT EXISTS name VARCHAR(100) NOT NULL DEFAULT 'Default Admin',
       ADD COLUMN IF NOT EXISTS role role_enum NOT NULL DEFAULT 'superAdmin'
     `);
-    
+
     await pool.query(`
       INSERT INTO admin (id, name, email, password, role)
       VALUES (1, 'Vishal', 'vishal@gmail.com', '1234', 'superAdmin')
       ON CONFLICT (email) DO UPDATE 
       SET name = EXCLUDED.name, role = EXCLUDED.role
     `);
-    
 
     res.json({ message: "Database updated successfully" });
   } catch (error) {
