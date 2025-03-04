@@ -81,6 +81,9 @@ async function adminLogin(req, res) {
       role: admin.rows[0].role,
     });
 
+    console.log("admin.rows[0] -->" ,admin.rows[0]);
+    
+
     return res
       .status(200)
       .json({
