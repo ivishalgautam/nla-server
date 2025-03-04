@@ -246,19 +246,28 @@ async function deleteAdmin(req, res) {
 // }
 async function DBUpdate(req, res) {
   try {
-    await pool.query(`
-      ALTER TABLE admin 
-      ADD COLUMN IF NOT EXISTS name VARCHAR(100) NOT NULL DEFAULT 'Default Admin',
-      ADD COLUMN IF NOT EXISTS role role_enum NOT NULL DEFAULT 'superAdmin',
-      ADD COLUMN IF NOT EXISTS logo VARCHAR(255) DEFAULT NULL
-    `);
-    
-    await pool.query(`
-      INSERT INTO admin (id, name, email, password, role, logo)
-      VALUES (1, 'Vishal', 'vishal@gmail.com', '1234', 'superAdmin', NULL)
-      ON CONFLICT (email) DO UPDATE 
-      SET name = EXCLUDED.name, role = EXCLUDED.role, logo = EXCLUDED.logo
-    `);    
+
+// Ensure `id` column exists and is a primary key
+await pool.query(`
+  DO $$ 
+  BEGIN 
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns 
+      WHERE table_name = 'admin' AND column_name = 'id'
+    ) THEN 
+      ALTER TABLE admin ADD COLUMN id SERIAL PRIMARY KEY;
+    END IF;
+  END $$;
+`);
+
+// Insert or update admin entry
+await pool.query(`
+  INSERT INTO admin (id, name, email, password, role, logo)
+  VALUES (1, 'Vishal', 'vishal@gmail.com', '1234', 'superAdmin', NULL)
+  ON CONFLICT (email) DO UPDATE 
+  SET name = EXCLUDED.name, role = EXCLUDED.role, logo = EXCLUDED.logo
+`);
+
 
     res.json({ message: "Database updated successfully" });
   } catch (error) {
