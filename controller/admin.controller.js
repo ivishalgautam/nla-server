@@ -91,7 +91,7 @@ async function deleteAdmin(req, res) {
 async function DBUpdate(req, res) {
   try {
     // Start a transaction
-    await pool.query('BEGIN');
+    await pool.query("BEGIN");
 
     // Create ENUM Types
     await pool.query(`
@@ -128,6 +128,30 @@ async function DBUpdate(req, res) {
       );
     `);
 
+    // ✅ Ensure Missing Columns in `admin` Table
+    const adminColumns = [
+      { column: "name", type: "VARCHAR(100) NOT NULL" },
+      { column: "email", type: "VARCHAR(100) NOT NULL UNIQUE" },
+      { column: "password", type: "VARCHAR(255) NOT NULL" },
+      { column: "logo", type: "VARCHAR(255)" },
+      { column: "role", type: "role_enum NOT NULL DEFAULT 'superAdmin'" },
+      { column: "created_at", type: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" },
+    ];
+
+    for (const col of adminColumns) {
+      const checkColumn = await pool.query(
+        `SELECT column_name FROM information_schema.columns WHERE table_name = 'admin' AND column_name = $1`,
+        [col.column]
+      );
+
+      if (checkColumn.rows.length === 0) {
+        await pool.query(
+          `ALTER TABLE admin ADD COLUMN ${col.column} ${col.type};`
+        );
+        console.log(`Added ${col.column} column to admin table`);
+      }
+    }
+
     // Insert Default Admin
     await pool.query(`
       INSERT INTO admin (name, email, password, role)
@@ -137,13 +161,13 @@ async function DBUpdate(req, res) {
 
     // Add admin_id Column to Existing Tables (if not exists)
     const tables = [
-      'grades',
-      'tests',
-      'questions',
-      'students',
-      'student_credentials',
-      'student_results',
-      'leads'
+      "grades",
+      "tests",
+      "questions",
+      "students",
+      "student_credentials",
+      "student_results",
+      "leads",
     ];
 
     for (const table of tables) {
@@ -168,17 +192,16 @@ async function DBUpdate(req, res) {
     }
 
     // Commit the transaction
-    await pool.query('COMMIT');
+    await pool.query("COMMIT");
 
-    res.json({ message: 'Database updated successfully' });
+    res.json({ message: "Database updated successfully" });
   } catch (error) {
     // Rollback the transaction in case of error
-    await pool.query('ROLLBACK');
-    console.error('Error updating database:', error.message);
+    await pool.query("ROLLBACK");
+    console.error("Error updating database:", error.message);
     res.status(500).json({ message: error.message });
   }
 }
-
 
 module.exports = {
   createAdmin,
