@@ -48,7 +48,11 @@ function verifyTokenAndDisabled(req, res, next) {
 
 function verifyTokenAndAuthorization(req, res, next) {
   verifyToken(req, res, () => {
-    if (req.user.id === req.params.id || req.user.role === "admin") {
+    if (
+      req.user.id === req.params.id ||
+      req.user.role === "superAdmin" ||
+      req.user.role === "admin"
+    ) {
       next();
     } else {
       return res.status(401).json({ message: "Unauthorised!" });
@@ -58,7 +62,7 @@ function verifyTokenAndAuthorization(req, res, next) {
 
 function verifyTokenAndAdmin(req, res, next) {
   verifyToken(req, res, () => {
-    if (req.user.role === "admin") {
+    if (req.user.role === "admin" || req.user.role === "superAdmin") {
       next();
     } else {
       return res.status(401).json({ message: "Access denied not admin!" });

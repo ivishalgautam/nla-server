@@ -33,7 +33,7 @@ async function createTest(req, res) {
         : 0;
 
     await pool.query(
-      `INSERT INTO tests (name, grade, test_type, subject, start_time, end_time, duration, instructions, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+      `INSERT INTO tests (name, grade, test_type, subject, start_time, end_time, duration, instructions, amount, admin_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`,
       [
         name,
         parseInt(grade),
@@ -44,6 +44,7 @@ async function createTest(req, res) {
         duration,
         instructions,
         amount,
+        req.user.id,
       ]
     );
     res.json({ message: "Test created successfully" });
@@ -348,10 +349,10 @@ async function getUpcomingTests(req, res) {
 // admin
 async function getAdminTests(req, res) {
   try {
-    const { rows } = await pool.query(`
-      SELECT 
+    const { rows } = await pool.query(
+      `SELECT 
         t.*, 
-        count(q.id) as total_questions, 
+        COUNT(q.id) AS total_questions, 
         g.name AS grade_name 
       FROM 
         tests AS t
@@ -359,12 +360,16 @@ async function getAdminTests(req, res) {
         questions AS q ON t.id = q.test_id 
       LEFT JOIN 
         grades AS g ON g.id = t.grade
-        GROUP BY
-          t.id,
-          g.name
-        ORDER BY 
-          t.id DESC;`);
-    // const { rows } = await pool.query(`SELECT * FROM tests`);
+      WHERE 
+        t.admin_id = $1
+      GROUP BY
+        t.id,
+        g.name
+      ORDER BY 
+        t.id DESC;`,
+      [req.user.id]
+    );
+
     res.json(rows);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -18,8 +18,8 @@ async function createResult(req, res) {
 }
 
 async function getResults(req, res) {
-  const whereConditions = [];
-  const queryParams = [];
+  const whereConditions = ["t.admin_id = $1"];
+  const queryParams = [req.user.id];
   let whereClause = "";
 
   const type = req.query.type ? req.query.type : null;
@@ -44,7 +44,9 @@ async function getResults(req, res) {
 
   // Add limit and offset parameters
   queryParams.push(limit, offset);
+
   console.log({ whereConditions, queryParams });
+
   try {
     const { rows, rowCount } = await pool.query(
       `
@@ -76,7 +78,7 @@ async function getResults(req, res) {
               s.id DESC
       )
       SELECT 
-          *,
+          * ,
           (SELECT COUNT(*) FROM distinct_students) AS total
       FROM 
           distinct_students
@@ -115,6 +117,7 @@ async function getResults(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
 async function getStudentResults(req, res) {
   const studentId = parseInt(req.params.studentId);
   try {
@@ -142,12 +145,12 @@ async function getStudentResults(req, res) {
             questions as qs on qs.test_id = t.id
         JOIN grades as g on s.grade = g.id    
         WHERE
-          sr.student_id = $1
+          sr.student_id = $1 AND sr.admin_id = $2
         GROUP BY
           sr.id, s.id, g.name, t.id
         ORDER BY created_at DESC
         ;`,
-      [studentId]
+      [studentId, req.user.id]
     );
 
     const updatedResults = rows.map((item) => {
@@ -184,12 +187,13 @@ async function getStudentResults(req, res) {
 async function getAnswerSheet(req, res) {
   const { studentId, testId } = req.params;
   const { t } = req.query;
+
   try {
     let studentAnswers;
     if (studentId && testId && t) {
       const answers = await pool.query(
-        "SELECT * FROM student_results WHERE student_id = $1 AND test_id = $2;",
-        [studentId, testId]
+        "SELECT * FROM student_results WHERE student_id = $1 AND test_id = $2 AND admin_id = $3;",
+        [studentId, testId, req.user.id]
       );
 
       const matchingRows = answers.rows.filter((row) => {
@@ -198,12 +202,13 @@ async function getAnswerSheet(req, res) {
         return createdAt.getTime() === tDate.getTime();
       });
 
-      studentAnswers = matchingRows[0].user_answers;
+      studentAnswers =
+        matchingRows.length > 0 ? matchingRows[0].user_answers : null;
     }
 
     const questions = await pool.query(
-      `SELECT * FROM questions WHERE test_id = $1 ORDER BY id ASC;`,
-      [testId]
+      `SELECT * FROM questions WHERE test_id = $1 AND admin_id = $2 ORDER BY id ASC;`,
+      [testId, req.user.id]
     );
 
     res.json({ questions: questions.rows, studentAnswers });

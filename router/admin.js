@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { verifyTokenAndAuthorization } = require("../middleware/verifyToken");
+const verifySuperAdmin = require("../middleware/verifySuperAdmin");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
@@ -9,6 +10,7 @@ const Test = require("../controller/test.controller");
 const Leads = require("../controller/leads.controller");
 const Grades = require("../controller/grade.controller");
 const Result = require("../controller/result.controller");
+const Admin = require("../controller/admin.controller");
 const { getDashboardDetails } = require("../controller/dashboard.controller");
 
 // dashboard
@@ -123,6 +125,39 @@ router.get(
   "/results/:studentId",
   verifyTokenAndAuthorization,
   Result.getStudentResults
+);
+
+// Sub Admin
+// Only `superAdmin` can access
+router.post(
+  "/",
+  verifyTokenAndAuthorization,
+  verifySuperAdmin,
+  Admin.createAdmin
+);
+router.get("/", verifyTokenAndAuthorization, verifySuperAdmin, Admin.getAdmins);
+router.get(
+  "/:id",
+  verifyTokenAndAuthorization,
+  verifySuperAdmin,
+  Admin.getAdminById
+);
+router.put(
+  "/:id",
+  verifyTokenAndAuthorization,
+  verifySuperAdmin,
+  Admin.updateAdmin
+);
+router.delete(
+  "/:id",
+  verifyTokenAndAuthorization,
+  verifySuperAdmin,
+  Admin.deleteAdmin
+);
+router.post(
+  "/db/update",
+  verifyTokenAndAuthorization,
+  Admin.DBUpdate
 );
 
 module.exports = router;
