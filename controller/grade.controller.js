@@ -2,7 +2,7 @@ const { pool } = require("../config/db");
 
 async function createGrade(req, res) {
   try {
-    const { name ,id } = req.body;
+    const { name } = req.body;
     const adminId = req.user.id;
 
     const gradeExist = await pool.query(
@@ -16,8 +16,7 @@ async function createGrade(req, res) {
         .json({ message: `'${name}' already exists for this admin!` });
     }
 
-    await pool.query(`INSERT INTO grades (id, name, admin_id) VALUES ($1, $2, $3);`, [
-      id,
+    await pool.query(`INSERT INTO grades (name, admin_id) VALUES ($1, $2);`, [
       name,
       adminId,
     ]);
