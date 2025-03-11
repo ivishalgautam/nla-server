@@ -33,12 +33,25 @@ async function login(req, res) {
     }
 
     const student = await pool.query(
-      `SELECT s.id as id, s.fullname, g.name AS grade, s.package, s.email, s.phone, s.city, s.pincode, s.is_disabled 
+      `SELECT 
+          s.id, 
+          s.fullname, 
+          COALESCE(g.name, '') AS grade, 
+          s.package, 
+          s.email, 
+          s.phone, 
+          s.city, 
+          s.pincode, 
+          s.is_disabled 
         FROM students AS s 
-        JOIN grades AS g ON g.id = s.grade 
+        LEFT JOIN grades AS g ON g.id = s.grade 
         WHERE s.id = $1;`,
       [credentials.rows[0].student_id]
     );
+
+    if (!student.rows.length) {
+      return res.status(400).json({ message: "Student Not found" });
+    }
 
     const jwtToken = jwtGenerator({
       id: student.rows[0].id,
@@ -81,18 +94,15 @@ async function adminLogin(req, res) {
       role: admin.rows[0].role,
     });
 
-    console.log("admin.rows[0] -->" ,admin.rows[0]);
-    
+    console.log("admin.rows[0] -->", admin.rows[0]);
 
-    return res
-      .status(200)
-      .json({
-        id: admin.rows[0].id,
-        email: admin.rows[0].email,
-        role: admin.rows[0].role,
-        name: admin.rows[0].name,
-        access_token: jwtToken,
-      });
+    return res.status(200).json({
+      id: admin.rows[0].id,
+      email: admin.rows[0].email,
+      role: admin.rows[0].role,
+      name: admin.rows[0].name,
+      access_token: jwtToken,
+    });
   } catch (error) {
     console.error("Database Query Error:", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
