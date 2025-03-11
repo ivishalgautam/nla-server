@@ -259,7 +259,12 @@ async function getStudentById(req, res) {
   const studentId = parseInt(req.params.studentId);
   try {
     const { rows, rowCount } = await pool.query(
-      `SELECT s.*, g.name AS grade_name FROM students AS s JOIN grades AS g ON g.id = s.grade WHERE s.id = $1`,
+      `SELECT 
+      s.*, 
+      COALESCE(g.name, '') AS grade_name 
+    FROM students AS s 
+    LEFT JOIN grades AS g ON g.id = s.grade 
+    WHERE s.id = $1;`,
       [studentId]
     );
 
