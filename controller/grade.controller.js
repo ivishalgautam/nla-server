@@ -76,7 +76,7 @@ async function getGradeById(req, res) {
 async function getGrades(req, res) {
   try {
     const { rows } = await pool.query(`SELECT * FROM grades;`);
-
+// 
     res.json(rows);
   } catch (error) {
     res.json({ message: error.message });
