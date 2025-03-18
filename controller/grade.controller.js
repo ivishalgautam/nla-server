@@ -3,17 +3,23 @@ const { pool } = require("../config/db");
 async function createGrade(req, res) {
   try {
     const { name } = req.body;
+    const adminId = req.user.id;
 
     const gradeExist = await pool.query(
-      `SELECT * FROM grades WHERE name = $1`,
-      [name]
+      `SELECT * FROM grades WHERE name = $1 AND admin_id = $2`,
+      [name, adminId]
     );
 
     if (gradeExist.rowCount > 0) {
-      return res.status(400).json({ message: `'${name}' already exist!` });
+      return res
+        .status(400)
+        .json({ message: `'${name}' already exists for this admin!` });
     }
 
-    await pool.query(`INSERT INTO grades (name) VALUES ($1);`, [name]);
+    await pool.query(`INSERT INTO grades (name, admin_id) VALUES ($1, $2);`, [
+      name,
+      adminId,
+    ]);
 
     res.json({ message: "Grade created successfully." });
   } catch (error) {
@@ -25,22 +31,27 @@ async function updateGradeById(req, res) {
   const gradeId = parseInt(req.params.gradeId);
   const { name } = req.body;
   try {
-    const gradeExist = await pool.query(`SELECT * FROM grades id = $1`, [name]);
+    const gradeExist = await pool.query(
+      `SELECT * FROM grades WHERE name = $1`,
+      [name]
+    );
 
-    if (gradeExist.rowCount > 0)
-      return res.status(400).json({ message: "Grade already exist!" });
+    if (gradeExist.rowCount > 0) {
+      return res.status(400).json({ message: "Grade already exists!" });
+    }
 
-    await pool.query(`UPDATE grades SET name = $1 WHERE id = $2;`, [
-      name,
-      gradeId,
-    ]);
+    const { rowCount } = await pool.query(
+      `UPDATE grades SET name = $1 WHERE id = $2 returning *;`,
+      [name, gradeId]
+    );
 
-    if (rowCount === 0)
+    if (rowCount === 0) {
       return res.status(404).json({ message: "Grade not found!" });
+    }
 
-    res.json({ message: "Garde updates sucessfully" });
+    res.json({ message: "Grade updated successfully" });
   } catch (error) {
-    res.json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 }
 
@@ -65,7 +76,7 @@ async function getGradeById(req, res) {
 async function getGrades(req, res) {
   try {
     const { rows } = await pool.query(`SELECT * FROM grades;`);
-// 
+
     res.json(rows);
   } catch (error) {
     res.json({ message: error.message });

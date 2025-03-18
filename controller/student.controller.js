@@ -13,12 +13,12 @@ async function importStudents(req, res) {
       return res.status(400).json({ message: "No file uploaded." });
     }
 
+    const adminId = req.user.id;
     const results = [];
 
     fs.createReadStream(req.file.path)
       .pipe(csv())
       .on("data", async (data) => {
-        // Process each row of data and add it to the results array
         results.push(data);
         const {
           fullname,
@@ -36,24 +36,26 @@ async function importStudents(req, res) {
           classs,
         } = data;
 
+        const formattedDOB = dob.split("/").reverse().join("-");
+
         const studentExist = await pool.query(
-          `SELECT * FROM students WHERE email = $1 OR phone = $2`,
-          [email, phone]
+          `SELECT * FROM students WHERE email = $1 OR phone = $2 AND admin_id = $3`,
+          [email, phone, adminId]
         );
 
-        // console.log(student.rows);
         if (studentExist.rowCount > 0) {
           return;
         }
-        console.log(data);
         const student = await pool.query(
-          `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, school_name, class, expiration_date) VALUES ($1, $2, $3, $4, TO_DATE($5, 'MM/DD/YYYY'), $6, $7, $8, $9, $10, $11, $12, $13, (CURRENT_DATE + INTERVAL '1 year')::DATE) returning *;`,
+          `INSERT INTO students 
+          (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, school_name, class, expiration_date, admin_id) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, (CURRENT_DATE + INTERVAL '1 year')::DATE, $14) returning *;`,
           [
             fullname,
             email,
             phone,
             guardian_name,
-            dob,
+            formattedDOB,
             city,
             pincode,
             subject,
@@ -62,6 +64,7 @@ async function importStudents(req, res) {
             gender,
             school_name,
             classs,
+            adminId,
           ]
         );
 
@@ -70,26 +73,26 @@ async function importStudents(req, res) {
           student.rows[0].id
         );
         const password = await generatePassword(student.rows[0].dob);
-        console.log(student.rows[0]);
 
         const credentialsExist = await pool.query(
-          `SELECT * FROM student_credentials WHERE student_id = $1`,
-          [student.rows[0].id]
+          `SELECT * FROM student_credentials WHERE student_id = $1 AND admin_id = $2`,
+          [student.rows[0].id, adminId]
         );
 
         if (credentialsExist.rowCount > 0) {
-          return res.json({ message: "Already created!" });
+          return;
         }
 
         const credentials = await pool.query(
-          `INSERT INTO student_credentials (username, password, student_id) VALUES ($1, $2, $3) returning *`,
-          [username, password, student.rows[0].id]
+          `INSERT INTO student_credentials (username, password, student_id, admin_id) 
+          VALUES ($1, $2, $3, $4) returning *`,
+          [username, password, student.rows[0].id, adminId]
         );
 
         if (credentials.rowCount > 0) {
           await pool.query(
-            `UPDATE students SET credentials_created = $1, is_subscribed = $2 WHERE id = $3`,
-            [true, true, student.rows[0].id]
+            `UPDATE students SET credentials_created = $1, is_subscribed = $2 WHERE id = $3 AND admin_id = $4`,
+            [true, true, student.rows[0].id, adminId]
           );
           sendEmail(student.rows[0].email, username, password);
         }
@@ -100,9 +103,7 @@ async function importStudents(req, res) {
       })
       .on("error", (error) => {
         console.error(error);
-        res.status(500).json({
-          message: "An error occurred while reading the uploaded file.",
-        });
+        res.status(500).json({ message: "Error reading the uploaded file." });
       });
   } catch (error) {
     console.log(error);
@@ -151,13 +152,18 @@ async function createStudent(req, res) {
         .json({ message: "Student already exist with this phone" });
     }
 
+    const superAdmins = await pool.query(
+      `SELECT * FROM admin WHERE role = 'superAdmin'`
+    );
+
     const currentDate = new Date();
     const expirationDate = new Date();
     expirationDate.setFullYear(currentDate.getFullYear() + 1);
     const formattedExpirationDate = expirationDate.toISOString().split("T")[0];
+    const adminId = req.user?.id || superAdmins.rows[0].id;
 
     await pool.query(
-      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, class, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, (CURRENT_DATE + INTERVAL '1 year')::DATE);`,
+      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, class, admin_id, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, (CURRENT_DATE + INTERVAL '1 year')::DATE);`,
       [
         fullname,
         email,
@@ -173,6 +179,7 @@ async function createStudent(req, res) {
         test_assigned,
         school_name,
         classs,
+        adminId,
       ]
     );
     res.json({ message: "Student created successfully" });
@@ -252,7 +259,12 @@ async function getStudentById(req, res) {
   const studentId = parseInt(req.params.studentId);
   try {
     const { rows, rowCount } = await pool.query(
-      `SELECT s.*, g.name AS grade_name FROM students AS s JOIN grades AS g ON g.id = s.grade WHERE s.id = $1`,
+      `SELECT 
+      s.*, 
+      COALESCE(g.name, '') AS grade_name 
+    FROM students AS s 
+    LEFT JOIN grades AS g ON g.id = s.grade 
+    WHERE s.id = $1;`,
       [studentId]
     );
 
@@ -287,7 +299,8 @@ async function getStudentByIdForAdmin(req, res) {
 async function getStudents(req, res) {
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM students ORDER BY id DESC;`
+      `SELECT * FROM students WHERE admin_id = $1 ORDER BY id DESC;`,
+      [req.user.id]
     );
 
     // const page =
@@ -308,44 +321,48 @@ async function getStudents(req, res) {
 // ADMIN
 async function generateCredentials(req, res) {
   const studentId = parseInt(req.params.studentId);
+  const adminId = req.user.id;
+
   try {
     const studentExist = await pool.query(
-      `SELECT * FROM students WHERE id = $1`,
-      [studentId]
+      `SELECT * FROM students WHERE id = $1 AND admin_id = $2`,
+      [studentId, adminId]
     );
-    console.log(studentExist.rows[0]);
 
-    if (studentExist.rowCount === 0)
-      return res.status(404).json({ message: "Student not exist!" });
+    if (studentExist.rowCount === 0) {
+      return res.status(404).json({
+        message: "Student not found or does not belong to this admin!",
+      });
+    }
 
     const { fullname, id, dob, email } = studentExist.rows[0];
     const username = await generateUsername(fullname, id);
     const password = await generatePassword(dob);
 
     const credentialsExist = await pool.query(
-      `SELECT * FROM student_credentials WHERE student_id = $1`,
-      [studentId]
+      `SELECT * FROM student_credentials WHERE student_id = $1 AND admin_id = $2`,
+      [studentId, adminId]
     );
+
     if (credentialsExist.rowCount > 0) {
       await pool.query(
-        `UPDATE student_credentials SET username = $1, password = $2 WHERE student_id = $3 returning *`,
-        [username, password, studentId]
+        `UPDATE student_credentials SET username = $1, password = $2 WHERE student_id = $3 AND admin_id = $4 returning *`,
+        [username, password, studentId, adminId]
       );
       sendEmail(email, username, password);
 
       return res.json({ message: `Credentials created and sent to: ${email}` });
-      // return res.json({ message: "Already created!" });
     }
 
     const credentials = await pool.query(
-      `INSERT INTO student_credentials (username, password, student_id) VALUES ($1, $2, $3) returning *`,
-      [username, password, studentId]
+      `INSERT INTO student_credentials (username, password, student_id, admin_id) VALUES ($1, $2, $3, $4) returning *`,
+      [username, password, studentId, adminId]
     );
 
     if (credentials.rowCount > 0) {
       await pool.query(
-        `UPDATE students SET credentials_created = $1, is_subscribed = $2 WHERE id = $3`,
-        [true, true, studentId]
+        `UPDATE students SET credentials_created = $1, is_subscribed = $2 WHERE id = $3 AND admin_id = $4`,
+        [true, true, studentId, adminId]
       );
       sendEmail(email, username, password);
     }

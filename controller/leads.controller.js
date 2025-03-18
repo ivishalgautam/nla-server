@@ -38,9 +38,14 @@ async function createLead(req, res) {
         .json({ message: "Student already exist with this email" });
     }
 
+    const superAdmins = await pool.query(
+      `SELECT * FROM admin WHERE role = 'superAdmin'`
+    );
+    const adminId = req.user?.id || superAdmins.rows[0].id;
+
     // create lead
     const lead = await pool.query(
-      `INSERT INTO leads (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`,
+      `INSERT INTO leads (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, school_name, admin_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);`,
       [
         fullname,
         email,
@@ -55,12 +60,13 @@ async function createLead(req, res) {
         gender,
         test_assigned,
         school_name,
+        adminId,
       ]
     );
 
     // create student
     const student = await pool.query(
-      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, credentials_created, school_name, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, (CURRENT_DATE + INTERVAL '1 year')::DATE) returning *;`,
+      `INSERT INTO students (fullname, email, phone, guardian_name, dob, city, pincode, subject, package, grade, gender, test_assigned, credentials_created, school_name, admin_id, expiration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, (CURRENT_DATE + INTERVAL '1 year')::DATE) returning *;`,
       [
         fullname,
         email,
@@ -76,6 +82,7 @@ async function createLead(req, res) {
         test_assigned,
         true,
         school_name,
+        adminId,
       ]
     );
 
@@ -96,8 +103,8 @@ async function createLead(req, res) {
     }
 
     const credentials = await pool.query(
-      `INSERT INTO student_credentials (username, password, student_id) VALUES ($1, $2, $3) returning *`,
-      [username, password, student.rows[0].id]
+      `INSERT INTO student_credentials (username, password, student_id , admin_id) VALUES ($1, $2, $3, $4) returning *`,
+      [username, password, student.rows[0].id, adminId]
     );
 
     if (credentials.rowCount > 0) {
@@ -157,8 +164,9 @@ async function getLeadById(req, res) {
 
 async function getAllLeads(req, res) {
   try {
-    const { rows, rowCount } = await pool.query(
-      `SELECT * FROM leads ORDER BY id DESC;`
+    const { rows } = await pool.query(
+      `SELECT * FROM leads WHERE admin_id = $1 ORDER BY id DESC;`,
+      [req.user.id]
     );
 
     res.json(rows);

@@ -2,18 +2,18 @@ const { pool } = require("../config/db");
 
 async function createQuestion(req, res) {
   const { data, testId } = req.body;
-  // console.log(req.body);
+  const adminId = req.user.id;
 
   try {
     await new Promise((resolve) => {
       pool.query(
         "DELETE FROM questions WHERE test_id = $1",
         [testId],
-        (err, result) => {
+        (err) => {
           if (err) {
             console.error(err);
           }
-          resolve(); // Resolve the Promise to continue to the next iteration.
+          resolve();
         }
       );
     });
@@ -28,12 +28,14 @@ async function createQuestion(req, res) {
           ) {
             await new Promise((resolve) => {
               pool.query(
-                `INSERT INTO questions (question, answer, test_id, heading) VALUES ($1, $2, $3, $4) returning *`,
+                `INSERT INTO questions (question, answer, test_id, heading, admin_id) 
+                 VALUES ($1, $2, $3, $4, $5) returning *`,
                 [
                   Object.values(value),
                   item["answer"],
                   parseInt(testId),
                   item["heading"],
+                  adminId,
                 ],
                 (err, result) => {
                   if (err) {
@@ -41,7 +43,7 @@ async function createQuestion(req, res) {
                   } else {
                     questionRows.push(result.rows[0]);
                   }
-                  resolve(); // Resolve the Promise to continue to the next iteration.
+                  resolve();
                 }
               );
             });
@@ -70,7 +72,7 @@ async function updateQuestionById(req, res) {
   try {
     const { rows, rowCount } = await pool.query(
       `UPDATE questions SET ${updateColumns} WHERE id = $${
-        updateValues + 1
+        updateValues.length + 1
       } returning *`,
       [...updateValues, questionId]
     );
@@ -144,10 +146,14 @@ async function getAdminQuestionsByTestId(req, res) {
 
 async function getQuestions(req, res) {
   try {
-    const { rows, rowCount } = await pool.query(`SELECT * FROM questions`);
+    const { rows, rowCount } = await pool.query(
+      `SELECT * FROM questions WHERE admin_id = $1`,
+      [req.user.id]
+    );
 
-    if (rowCount === 0)
+    if (rowCount === 0) {
       return res.status(404).json({ message: "Question not found!" });
+    }
 
     res.json(rows);
   } catch (error) {

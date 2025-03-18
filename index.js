@@ -31,5 +31,5 @@ app.use("/api/query", require("./router/query"));
 app.use("/api/auth", require("./router/auth"));
 
 app.listen(PORT, () => {
-  console.log(`Server up at http://locathost:${PORT}`);
+  console.log(`Server up at http://localhost:${PORT}`);
 });
